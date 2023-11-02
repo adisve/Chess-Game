@@ -1,0 +1,5 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja -S /Users/adisveletanlic/CLionProjects/chessgame -B /Users/adisveletanlic/CLionProjects/chessgame/cmake-build-debug
+-- Found SFML 2.6.0 in /opt/homebrew/lib/cmake/SFML
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/adisveletanlic/CLionProjects/chessgame/cmake-build-debug
