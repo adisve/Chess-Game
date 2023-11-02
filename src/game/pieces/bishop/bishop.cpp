@@ -8,9 +8,9 @@
 
 Bishop::Bishop(int row, int col, Color color) : Piece(row, col, color) {
     if (color == Color::BLACK) {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/bishop-black.png");
+        LoadTexture("assets/sprites/bishop-black.png");
     } else {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/bishop-white.png");
+        LoadTexture("assets/sprites/bishop-white.png");
     }
 }
 

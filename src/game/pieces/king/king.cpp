@@ -8,9 +8,9 @@
 
 King::King(int row, int col, Color color) : Piece(row, col, color) {
     if (color == Color::BLACK) {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/king-black.png");
+        LoadTexture("assets/sprites/king-black.png");
     } else {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/king-white.png");
+        LoadTexture("assets/sprites/king-white.png");
     }
 }
 

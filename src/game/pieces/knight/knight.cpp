@@ -8,9 +8,9 @@
 
 Knight::Knight(int row, int col, Color color) : Piece(row, col, color) {
     if (color == Color::BLACK) {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/knight-black.png");
+        LoadTexture("assets/sprites/knight-black.png");
     } else {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/knight-white.png");
+        LoadTexture("assets/sprites/knight-white.png");
     }
 }
 

@@ -8,9 +8,9 @@
 
 Queen::Queen(int row, int col, Color color) : Piece(row, col, color) {
     if (color == Color::BLACK) {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/queen-black.png");
+        LoadTexture("assets/sprites/queen-black.png");
     } else {
-        LoadTexture("/Users/adisveletanlic/CLionProjects/chessgame/assets/sprites/queen-white.png");
+        LoadTexture("assets/sprites/queen-white.png");
     }
 }
 
