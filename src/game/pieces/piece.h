@@ -20,6 +20,7 @@ public:
     Piece(int row, int col, Color color) : row(row), col(col), color(color) {}
     virtual ~Piece() = default;
     virtual bool CanMove(int toRow, int toCol, const Board& board) const = 0;
+    virtual std::vector<sf::Vector2i> AvailableMoves(Board board) const = 0;
     virtual const sf::Texture& GetTexture() const = 0;
     sf::Sprite sprite;
 

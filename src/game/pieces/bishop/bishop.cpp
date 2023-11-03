@@ -14,6 +14,10 @@ Bishop::Bishop(int row, int col, Color color) : Piece(row, col, color) {
     }
 }
 
+std::vector<sf::Vector2i> Bishop::AvailableMoves(Board board) const {
+
+}
+
 bool Bishop::CanMove(int toRow, int toCol, const Board& board) const {
     return std::abs(row - toRow) == std::abs(col - toCol);
 }

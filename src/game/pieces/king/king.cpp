@@ -14,6 +14,10 @@ King::King(int row, int col, Color color) : Piece(row, col, color) {
     }
 }
 
+std::vector<sf::Vector2i> King::AvailableMoves(Board board) const {
+
+}
+
 bool King::CanMove(int toRow, int toCol, const Board &board) const {
     return false;
 }

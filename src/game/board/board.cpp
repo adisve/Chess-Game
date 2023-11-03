@@ -12,24 +12,35 @@
 #include "../pieces/king/king.h"
 #include "../pieces/queen/queen.h"
 
+sf::Color Board::DetermineSquareColor(int row, int col) const {
+    if ((row == selectedPosition.x) && (col == selectedPosition.y)) {
+        return {177, 167, 252};
+    }
+    return ((row + col) % 2 == 0) ? sf::Color(232, 237, 249) : sf::Color(183, 192, 216);
+}
+
+void Board::DrawAvailableMoves(sf::RenderWindow& window, const std::vector<sf::Vector2i>& availableMoves, int row, int col, int squareSize) const {
+    if (std::find(availableMoves.begin(), availableMoves.end(), sf::Vector2i(row, col)) != availableMoves.end() &&
+        !(selectedPosition.x == col && selectedPosition.y == row)) {
+        sf::CircleShape circle(squareSize / 2 - 20);
+        circle.setFillColor(sf::Color(123, 97, 255));
+        circle.setPosition((col * squareSize) + 20, (row * squareSize) + 20);
+        window.draw(circle);
+    }
+}
+
 void Board::Draw(sf::RenderWindow& window) {
     const int squareSize = 100;
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
-
-    sf::Color darkColor = sf::Color(183, 192, 216);
-    sf::Color lightColor = sf::Color(232, 237, 249);
+    auto availableMoves = GetAvailableMovesForSelectedPiece();
 
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
             square.setPosition(col * squareSize, row * squareSize);
-
-            if ((row + col) % 2 == 0) {
-                square.setFillColor(lightColor);
-            } else {
-                square.setFillColor(darkColor);
-            }
-
+            square.setFillColor(DetermineSquareColor(row, col));
             window.draw(square);
+
+            DrawAvailableMoves(window, availableMoves, row, col, squareSize);
 
             auto piece = GetPieceAt(row, col);
             if (piece) {
@@ -90,4 +101,15 @@ bool Board::IsMoveLegal(int fromRow, int fromCol, int toRow, int toCol) {
 
 bool Board::IsKingInCheck(Color playerColor) {
     return false;
+}
+
+bool Board::MovePiece(int fromRow, int fromCol, int toRow, int toCol) {
+    return false;
+}
+
+std::vector<sf::Vector2i> Board::GetAvailableMovesForSelectedPiece() const  {
+    if (selectedPiece) {
+        return selectedPiece->AvailableMoves(*this);
+    }
+    return {};
 }
