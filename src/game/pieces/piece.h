@@ -18,6 +18,7 @@ public:
     Color color;
 
     Piece(int row, int col, Color color) : row(row), col(col), color(color) {}
+    std::vector<sf::Vector2i> FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, Board board) const;
     virtual ~Piece() = default;
     virtual bool CanMove(int toRow, int toCol, const Board& board) const = 0;
     virtual std::vector<sf::Vector2i> AvailableMoves(Board board) const = 0;

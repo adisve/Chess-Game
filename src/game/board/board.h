@@ -16,24 +16,65 @@
 class Piece;
 
 class Board {
-public:
+private:
     using Row = std::array<std::optional<std::shared_ptr<Piece>>, 8>;
+    std::vector<std::shared_ptr<Piece>> capturedPieces;
     std::array<Row, 8> board; // Holding board state
     std::shared_ptr<Piece> lastMovedPiece; // Pointer to the last moved piece
-    sf::Vector2i lastMovedPiecePreviousPosition;
     std::shared_ptr<Piece> selectedPiece = nullptr;
+    sf::Vector2i lastMovedPiecePreviousPosition;
     sf::Vector2i selectedPosition = {-1, -1};
+public:
 
     void Draw(sf::RenderWindow& window);
     void Populate();
-    bool IsMoveLegal(int fromRow, int fromCol, int toRow, int toCol);
-    bool MovePiece(int fromRow, int fromCol, int toRow, int toCol);
+    void MoveSelectedPiece(int toRow, int toCol);
     [[nodiscard]] std::vector<sf::Vector2i> GetAvailableMovesForSelectedPiece() const;
     std::shared_ptr<Piece> GetPieceAt(int row, int col);
 
+    [[nodiscard]] const std::vector<std::shared_ptr<Piece>>& GetCapturedPieces() const {
+        return capturedPieces;
+    }
+
+    [[nodiscard]] const std::array<Row, 8>& GetBoard() const {
+        return board;
+    }
+
+    [[nodiscard]] std::shared_ptr<Piece> GetLastMovedPiece() const {
+        return lastMovedPiece;
+    }
+
+    [[nodiscard]] std::shared_ptr<Piece> GetSelectedPiece() const {
+        return selectedPiece;
+    }
+
+    [[nodiscard]] sf::Vector2i GetLastMovedPiecePreviousPosition() const {
+        return lastMovedPiecePreviousPosition;
+    }
+
+    [[nodiscard]] sf::Vector2i GetSelectedPosition() const {
+        return selectedPosition;
+    }
+
+    // Setters for the private variables
+    void SetLastMovedPiece(const std::shared_ptr<Piece>& piece) {
+        lastMovedPiece = piece;
+    }
+
+    void SetSelectedPiece(const std::shared_ptr<Piece>& piece) {
+        selectedPiece = piece;
+    }
+
+    void SetLastMovedPiecePreviousPosition(const sf::Vector2i& position) {
+        lastMovedPiecePreviousPosition = position;
+    }
+
+    void SetSelectedPosition(const sf::Vector2i& position) {
+        selectedPosition = position;
+    }
+
 private:
-    bool IsKingInCheck(Color playerColor);
-    void DrawAvailableMoves(sf::RenderWindow& window, const std::vector<sf::Vector2i>& availableMoves, int row, int col, int squareSize) const;
+    void DrawAvailableMoves(sf::RenderWindow& window, const std::vector<sf::Vector2i>& availableMoves, int squareSize);
     [[nodiscard]] sf::Color DetermineSquareColor(int row, int col) const;
 };
 

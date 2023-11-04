@@ -7,6 +7,6 @@
 #pragma once
 #endif //CHESSGAME_ENUM_H
 
-enum class Color {
+enum Color {
     BLACK, WHITE
 };

@@ -48,8 +48,8 @@ std::vector<sf::Vector2i> Pawn::AvailableMoves(Board board) const {
         }
     }
 
-    auto lastMovedPiece = board.lastMovedPiece;
-    auto lastMovedPiecePrevPos = board.lastMovedPiecePreviousPosition;
+    auto lastMovedPiece = board.GetLastMovedPiece();
+    auto lastMovedPiecePrevPos = board.GetLastMovedPiecePreviousPosition();
 
     if (lastMovedPiece && dynamic_cast<Pawn*>(lastMovedPiece.get()) && abs(lastMovedPiecePrevPos.x - row) == 2) {
         // Left en passant

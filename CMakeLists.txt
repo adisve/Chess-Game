@@ -21,6 +21,7 @@ add_executable(chessgame src/main.cpp
         src/game/pieces/bishop/bishop.h
         src/game/game.cpp
         src/game/game.h
+        src/game/pieces/piece.cpp
 )
 
 include_directories(/usr/local/include)

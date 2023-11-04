@@ -19,15 +19,23 @@ sf::Color Board::DetermineSquareColor(int row, int col) const {
     return ((row + col) % 2 == 0) ? sf::Color(232, 237, 249) : sf::Color(183, 192, 216);
 }
 
-void Board::DrawAvailableMoves(sf::RenderWindow& window, const std::vector<sf::Vector2i>& availableMoves, int row, int col, int squareSize) const {
-    if (std::find(availableMoves.begin(), availableMoves.end(), sf::Vector2i(row, col)) != availableMoves.end() &&
-        !(selectedPosition.x == col && selectedPosition.y == row)) {
+void Board::DrawAvailableMoves(sf::RenderWindow& window, const std::vector<sf::Vector2i>& availableMoves, int squareSize) {
+    for (const auto& move : availableMoves) {
+        auto piece = GetPieceAt(move.x, move.y);
+
         sf::CircleShape circle(squareSize / 2 - 20);
-        circle.setFillColor(sf::Color(123, 97, 255));
-        circle.setPosition((col * squareSize) + 20, (row * squareSize) + 20);
+
+        if (piece && piece->color != selectedPiece->color) {
+            circle.setFillColor(sf::Color::Red);
+        } else {
+            circle.setFillColor(sf::Color(123, 97, 255));
+        }
+
+        circle.setPosition((move.y * squareSize) + 20, (move.x * squareSize) + 20);
         window.draw(circle);
     }
 }
+
 
 void Board::Draw(sf::RenderWindow& window) {
     const int squareSize = 100;
@@ -39,15 +47,20 @@ void Board::Draw(sf::RenderWindow& window) {
             square.setPosition(col * squareSize, row * squareSize);
             square.setFillColor(DetermineSquareColor(row, col));
             window.draw(square);
+        }
+    }
 
-            DrawAvailableMoves(window, availableMoves, row, col, squareSize);
+    DrawAvailableMoves(window, availableMoves, squareSize);
 
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
             auto piece = GetPieceAt(row, col);
             if (piece) {
                 window.draw(piece->sprite);
             }
         }
     }
+
 }
 
 
@@ -66,7 +79,7 @@ void Board::Populate() {
     // Knights
     board[0][1] = std::make_shared<Knight>(0, 1, Color::BLACK);
     board[0][6] = std::make_shared<Knight>(0, 6, Color::BLACK);
-    board[7][1] = std::make_shared<Knight>(7, 1, Color::WHITE);
+    board[3][1] = std::make_shared<Knight>(3, 1, Color::WHITE);
     board[7][6] = std::make_shared<Knight>(7, 6, Color::WHITE);
 
     // Bishops
@@ -84,6 +97,13 @@ void Board::Populate() {
     board[7][4] = std::make_shared<King>(7, 4, Color::WHITE);
 }
 
+std::vector<sf::Vector2i> Board::GetAvailableMovesForSelectedPiece() const  {
+    if (selectedPiece) {
+        return selectedPiece->AvailableMoves(*this);
+    }
+    return {};
+}
+
 std::shared_ptr<Piece> Board::GetPieceAt(int row, int col) {
     if (row < 0 || row >= 8 || col < 0 || col >= 8) {
         throw std::out_of_range("Coordinates out of board bounds.");
@@ -95,21 +115,20 @@ std::shared_ptr<Piece> Board::GetPieceAt(int row, int col) {
 }
 
 
-bool Board::IsMoveLegal(int fromRow, int fromCol, int toRow, int toCol) {
-    return false;
-}
+void Board::MoveSelectedPiece(int toRow, int toCol) {
+    auto attackedPiece = GetPieceAt(toRow, toCol);
 
-bool Board::IsKingInCheck(Color playerColor) {
-    return false;
-}
-
-bool Board::MovePiece(int fromRow, int fromCol, int toRow, int toCol) {
-    return false;
-}
-
-std::vector<sf::Vector2i> Board::GetAvailableMovesForSelectedPiece() const  {
-    if (selectedPiece) {
-        return selectedPiece->AvailableMoves(*this);
+    if (attackedPiece && attackedPiece->color != selectedPiece->color) {
+        capturedPieces.push_back(attackedPiece);
+        board[toRow][toCol] = nullptr;
     }
-    return {};
+
+    board[selectedPiece->row][selectedPiece->col] = nullptr;
+    selectedPiece->row = toRow;
+    selectedPiece->col = toCol;
+    board[toRow][toCol] = selectedPiece;
+    selectedPiece->sprite.setOrigin(selectedPiece->GetTexture().getSize().x / 2, selectedPiece->GetTexture().getSize().y / 2);
+    selectedPiece->sprite.setPosition(toCol * 100 + 50, toRow * 100 + 50);
 }
+
+
