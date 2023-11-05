@@ -32,11 +32,11 @@ std::vector<sf::Vector2i> Pawn::AvailableMoves(const Board& board, const std::sh
 }
 
 void Pawn::AddSingleAndDoubleForwardMoves(std::vector<sf::Vector2i>& moves, sf::Vector2i currentPosition, int direction, const Board& board) const {
-    const sf::Vector2i oneStepForward(currentPosition.x + direction, currentPosition.y);
+    const sf::Vector2i oneStepForward(currentPosition.x, currentPosition.y + direction);
     if (IsMovePossible(oneStepForward, board)) {
         moves.push_back(oneStepForward);
 
-        const sf::Vector2i twoStepsForward(currentPosition.x + 2 * direction, currentPosition.y);
+        const sf::Vector2i twoStepsForward(currentPosition.x, currentPosition.y + 2 * direction);
         if (!hasMoved && IsMovePossible(twoStepsForward, board)) {
             moves.push_back(twoStepsForward);
         }
@@ -44,8 +44,8 @@ void Pawn::AddSingleAndDoubleForwardMoves(std::vector<sf::Vector2i>& moves, sf::
 }
 
 void Pawn::AddDiagonalCaptureMoves(std::vector<sf::Vector2i>& moves, sf::Vector2i currentPosition, int direction, const Board& board) const {
-    const sf::Vector2i leftDiagonal(currentPosition.x + direction, currentPosition.y - 1);
-    const sf::Vector2i rightDiagonal(currentPosition.x + direction, currentPosition.y + 1);
+    const sf::Vector2i leftDiagonal(currentPosition.x - 1, currentPosition.y + direction);
+    const sf::Vector2i rightDiagonal(currentPosition.x + 1, currentPosition.y + direction);
 
     AddCaptureMoveIfValid(moves, leftDiagonal, board);
     AddCaptureMoveIfValid(moves, rightDiagonal, board);
@@ -59,15 +59,15 @@ void Pawn::AddCaptureMoveIfValid(std::vector<sf::Vector2i>& moves, sf::Vector2i 
 
 void Pawn::AddEnPassantMoves(std::vector<sf::Vector2i>& moves, sf::Vector2i currentPosition, int direction, const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const {
     if (lastMovedPiece && dynamic_cast<Pawn*>(lastMovedPiece.get())) {
-        if (std::abs(lastMovedPiecePreviousPosition.x - currentPosition.x) == 2) {
+        if (std::abs(lastMovedPiecePreviousPosition.y - currentPosition.y) == 2) {
             AddEnPassantMoveIfValid(moves, currentPosition, lastMovedPiecePreviousPosition, direction, board);
         }
     }
 }
 
 void Pawn::AddEnPassantMoveIfValid(std::vector<sf::Vector2i>& moves, sf::Vector2i currentPosition, sf::Vector2i lastMovedPiecePrevPos, int direction, const Board& board) const {
-    const sf::Vector2i leftEnPassant(currentPosition.x + direction, currentPosition.y - 1);
-    const sf::Vector2i rightEnPassant(currentPosition.x + direction, currentPosition.y + 1);
+    const sf::Vector2i leftEnPassant(currentPosition.x - 1, currentPosition.y + direction);
+    const sf::Vector2i rightEnPassant(currentPosition.x + 1, currentPosition.y + direction);
 
     if (CanEnPassant(leftEnPassant, lastMovedPiecePrevPos, board)) {
         moves.push_back(leftEnPassant);

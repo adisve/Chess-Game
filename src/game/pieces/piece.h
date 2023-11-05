@@ -73,7 +73,7 @@ protected:
         }
         sprite.setTexture(texture);
         sprite.setOrigin((float)texture.getSize().x / 2, (float)texture.getSize().y / 2);
-        sprite.setPosition((float)position.y * 100 + 50, (float)position.x * 100 + 50);
+        sprite.setPosition((float)position.x * 100 + 50, (float)position.y * 100 + 50);
     }
 
     sf::Texture texture;

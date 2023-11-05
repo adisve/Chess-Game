@@ -37,7 +37,8 @@ void Game::HandleEvent(sf::Event& event) {
 }
 
 void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
-    sf::Vector2i position = {mouseY / 100, mouseX / 100};
+    sf::Vector2i position = {mouseX / 100, mouseY / 100};
+    std::cout << "Position = x: " << position.x << ", y: " << position.y << std::endl;
     if (!GetSelectedPiece()) {
         SelectPieceAt(position);
     } else {
@@ -88,15 +89,10 @@ void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
     SetLastMovedPiecePreviousPosition(selectedPiece->GetPosition());
 
     UpdateBoardWithMove(move);
-
-    switch (playerTurn) {
-        case Color::Black:
-            playerTurn = Color::White;
-            break;
-        case Color::White:
-            playerTurn = Color::Black;
-    }
+    SetPlayerTurn(playerTurn == Color::White ? Color::Black : Color::White);
     DeselectPiece();
+
+    std::cout << "Moved a piece to x: " << move.x << ", y: " << move.y << std::endl;
 }
 
 void Game::UpdateBoardWithMove(sf::Vector2i move) {
@@ -109,7 +105,7 @@ void Game::UpdateBoardWithMove(sf::Vector2i move) {
     }
 
     selectedPiece->sprite.setOrigin((float)selectedPiece->GetTexture().getSize().x / 2, (float)selectedPiece->GetTexture().getSize().y / 2);
-    selectedPiece->sprite.setPosition((float)move.y * 100 + 50, (float)move.x * 100 + 50);
+    selectedPiece->sprite.setPosition((float)move.x * 100 + 50, (float)move.y * 100 + 50);
 
     if (selectedPiece->GetType() == PieceType::Pawn) {
         auto pawn = std::dynamic_pointer_cast<Pawn>(selectedPiece);
@@ -143,29 +139,51 @@ std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() const {
     if (selectedPiece) {
         auto availableMoves = selectedPiece->AvailableMoves(chessBoard, lastMovedPiece, lastMovedPiecePreviousPosition);
         for (const auto& move : availableMoves) {
-            // 1. Validate all moves before showing them to the player
-            //    - Check if the move would put the players king in check
-            //    - If it would, then the move is not valid
-            // 2. If the move is valid, then show it to the player by adding to legalMoves
-
-            // For now just return all available moves
-            legalMoves.push_back(move);
+            if (!IsKingInCheck(playerTurn)) {
+                legalMoves.push_back(move);
+            }
         }
     }
     return legalMoves;
 }
 
 bool Game::IsKingInCheck(Color color) const {
-    std::cout << "Checking if king is in check for color " << (color == Color::White ? "white" : "black") << std::endl;
-    sf::Vector2i kingPosition = GetKingPosition(color);
-    std::cout << "King position: " << kingPosition.x << ", " << kingPosition.y << std::endl;
-    auto threatPositions = Board::GetThreateningPiecesPositions(kingPosition, color);
+    auto kingPosition = GetKingPosition(color);
 
-    return std::any_of(threatPositions.begin(), threatPositions.end(),
-                       [this, kingPosition, color](const sf::Vector2i& pos) {
-                           std::shared_ptr<Piece> piece = chessBoard.GetPieceAt({pos.x, pos.y});
-                           // If there is a piece of opposing color on this square that can threaten the king, then the king is in check.
-                           std::cout << "Checking if piece at " << pos.x << ", " << pos.y << " can threaten king at " << kingPosition.x << ", " << kingPosition.y << std::endl;
-                           return piece && piece->GetColor() != color && piece->CanThreatenKing(pos, kingPosition, chessBoard);
-                       });
+    // Check for pawns
+    if (CheckForPawns(kingPosition, color)) {
+        std::cout << "THERE IS A PAWN ATTACKING !!!!!" << std::endl;
+        return true;
+    } else {
+        std::cout << "There are no pawns attacking your king" << std::endl;
+    }
+
+
+    return false;
+}
+
+bool Game::CheckForPawns(sf::Vector2i kingPosition, Color color) const {
+    std::vector<sf::Vector2i> possiblePawnAttacks;
+
+    if (color == Color::White) {
+        possiblePawnAttacks.emplace_back(kingPosition.x - 1, kingPosition.y - 1);
+        possiblePawnAttacks.emplace_back(kingPosition.x + 1, kingPosition.y - 1);
+    } else {
+        possiblePawnAttacks.emplace_back(kingPosition.x - 1, kingPosition.y + 1);
+        possiblePawnAttacks.emplace_back(kingPosition.x + 1, kingPosition.y + 1);
+    }
+
+    // Now use std::any_of to check these vectors
+    return std::any_of(possiblePawnAttacks.begin(), possiblePawnAttacks.end(),
+       [this, color](const sf::Vector2i& attackPosition) {
+        std::cout << "Checking for attacking pawn at x: " << attackPosition.x << ", y: " << attackPosition.y << std::endl;
+        // First, make sure the attack position is within the bounds of the board
+        if (Board::IsWithinBounds(attackPosition)) {
+            return false;
+        }
+
+        auto pawn = chessBoard.GetPieceAt(attackPosition);
+        // Make sure there is a pawn at the attack position and it's an opposing pawn
+        return pawn && pawn->GetType() == PieceType::Pawn && pawn->GetColor() != color;
+    });
 }

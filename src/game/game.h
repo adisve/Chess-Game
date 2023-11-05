@@ -17,8 +17,11 @@ public:
     Game();
     void Run();
     void HandleEvent(sf::Event& event);
+    void HandleLeftMouseClick(int mouseX, int mouseY);
+    bool IsValidMove(const sf::Vector2i& move) const;
+    bool IsKingInCheck(Color color) const; // Determines if any opponent pieces are currently attacking the players king
+    bool IsKingInCheckmate(Color color) const; // Determines if the player is in checkmate
 
-    [[nodiscard]] bool IsKingInCheck(Color color) const;
 
     sf::Vector2i GetKingPosition(Color color) const {
         return color == Color::White ? whiteKingPosition : blackKingPosition;
@@ -49,8 +52,6 @@ public:
     void MoveSelectedPieceTo(const sf::Vector2i& move);
 
     void DeselectPiece();
-
-    void CapturePieceAt(const sf::Vector2i& position);
 
     void PromotePawnAt(const sf::Vector2i& position, PieceType type);
 
@@ -90,10 +91,7 @@ private:
     sf::Vector2i blackKingPosition = {4, 0};
     sf::Vector2i whiteKingPosition = {4, 7};
 
-    void HandleLeftMouseClick(int mouseX, int mouseY);
-
-    bool IsValidMove(const sf::Vector2i& move) const;
-    bool IsMoveCheckmate(const sf::Vector2i& move);
+    bool CheckForPawns(sf::Vector2i vector2, Color color) const;
 };
 
 #endif //CHESS_GAME_H

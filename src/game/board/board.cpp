@@ -30,7 +30,7 @@ void Board::DrawAvailableMoves(sf::RenderWindow &window, const std::vector<sf::V
             circle.setFillColor(sf::Color(123, 97, 255));
         }
 
-        circle.setPosition((float)(move.y * 100) + 25, (float)(move.x * 100) + 25);
+        circle.setPosition((float)(move.x * 100) + 25, (float)(move.y * 100) + 25);
         window.draw(circle);
     }
 }
@@ -42,7 +42,7 @@ void Board::Draw(sf::RenderWindow& window, const sf::Vector2i& selectedPosition,
 
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
-            square.setPosition((float)col * squareSize, (float)row * squareSize);
+            square.setPosition((float)row * squareSize, (float)col * squareSize);
             square.setFillColor(DetermineSquareColor(sf::Vector2i {row, col}, selectedPosition));
             window.draw(square);
         }
@@ -65,36 +65,36 @@ void Board::Draw(sf::RenderWindow& window, const sf::Vector2i& selectedPosition,
 
 
 void Board::Populate() {
-    for (int col = 0; col < 8; ++col) {
-        board[1][col] = std::make_shared<Pawn>(sf::Vector2i{1, col}, Color::Black, PieceType::Pawn);
-        board[6][col] = std::make_shared<Pawn>(sf::Vector2i{6, col}, Color::White, PieceType::Pawn);
+    for (int row = 0; row < 8; ++row) {
+        board[row][1] = std::make_shared<Pawn>(sf::Vector2i{row, 1}, Color::Black, PieceType::Pawn);
+        board[row][6] = std::make_shared<Pawn>(sf::Vector2i{row, 6}, Color::White, PieceType::Pawn);
     }
 
     // Rooks
     board[0][0] = std::make_shared<Rook>((sf::Vector2i){0, 0}, Color::Black, PieceType::Rook);
-    board[0][7] = std::make_shared<Rook>((sf::Vector2i){0, 7}, Color::Black, PieceType::Rook);
-    board[7][0] = std::make_shared<Rook>((sf::Vector2i){7, 0}, Color::White, PieceType::Rook);
+    board[7][0] = std::make_shared<Rook>((sf::Vector2i){7, 0}, Color::Black, PieceType::Rook);
+    board[0][7] = std::make_shared<Rook>((sf::Vector2i){0, 7}, Color::White, PieceType::Rook);
     board[7][7] = std::make_shared<Rook>((sf::Vector2i){7, 7}, Color::White, PieceType::Rook);
 
     // Knights
-    board[0][1] = std::make_shared<Knight>((sf::Vector2i){0, 1}, Color::Black, PieceType::Knight);
-    board[0][6] = std::make_shared<Knight>((sf::Vector2i){0, 6}, Color::Black, PieceType::Knight);
-    board[7][1] = std::make_shared<Knight>((sf::Vector2i){7, 1}, Color::White, PieceType::Knight);
-    board[7][6] = std::make_shared<Knight>((sf::Vector2i){7, 6}, Color::White, PieceType::Knight);
+    board[1][0] = std::make_shared<Knight>((sf::Vector2i){1, 0}, Color::Black, PieceType::Knight);
+    board[6][0] = std::make_shared<Knight>((sf::Vector2i){6, 0}, Color::Black, PieceType::Knight);
+    board[1][7] = std::make_shared<Knight>((sf::Vector2i){1, 7}, Color::White, PieceType::Knight);
+    board[6][7] = std::make_shared<Knight>((sf::Vector2i){6, 7}, Color::White, PieceType::Knight);
 
     // Bishops
-    board[0][2] = std::make_shared<Bishop>((sf::Vector2i){0, 2}, Color::Black, PieceType::Bishop);
-    board[0][5] = std::make_shared<Bishop>((sf::Vector2i){0, 5}, Color::Black, PieceType::Bishop);
-    board[7][2] = std::make_shared<Bishop>((sf::Vector2i){7, 2}, Color::White, PieceType::Bishop);
-    board[7][5] = std::make_shared<Bishop>((sf::Vector2i){7, 5}, Color::White, PieceType::Bishop);
+    board[2][0] = std::make_shared<Bishop>((sf::Vector2i){2, 0}, Color::Black, PieceType::Bishop);
+    board[5][0] = std::make_shared<Bishop>((sf::Vector2i){5, 0}, Color::Black, PieceType::Bishop);
+    board[2][7] = std::make_shared<Bishop>((sf::Vector2i){2, 7}, Color::White, PieceType::Bishop);
+    board[5][7] = std::make_shared<Bishop>((sf::Vector2i){5, 7}, Color::White, PieceType::Bishop);
 
     // Queens
-    board[0][3] = std::make_shared<Queen>((sf::Vector2i){0, 3}, Color::Black, PieceType::Queen);
-    board[7][3] = std::make_shared<Queen>((sf::Vector2i){7, 3}, Color::White, PieceType::Queen);
+    board[3][0] = std::make_shared<Queen>((sf::Vector2i){3, 0}, Color::Black, PieceType::Queen);
+    board[3][7] = std::make_shared<Queen>((sf::Vector2i){3, 7}, Color::White, PieceType::Queen);
 
     // Kings
-    board[0][4] = std::make_shared<King>((sf::Vector2i){0, 4}, Color::Black, PieceType::King);
-    board[7][4] = std::make_shared<King>((sf::Vector2i){7, 4}, Color::White, PieceType::King);
+    board[4][0] = std::make_shared<King>((sf::Vector2i){4, 0}, Color::Black, PieceType::King);
+    board[4][7] = std::make_shared<King>((sf::Vector2i){4, 7}, Color::White, PieceType::King);
 }
 
 
@@ -106,75 +106,4 @@ std::shared_ptr<Piece> Board::GetPieceAt(sf::Vector2i position) const {
     const auto& pieceOptional = board[position.x][position.y];
 
     return pieceOptional.value_or(nullptr);
-}
-
-std::vector<sf::Vector2i> Board::GetThreateningPiecesPositions(const sf::Vector2i& kingPosition, Color kingColor) {
-    std::vector<sf::Vector2i> threatPositions;
-
-    std::vector<sf::Vector2i> pawnThreats;
-
-    if (kingColor == Color::Black) {
-        // Black king is threatened by white pawns moving down (decreasing x)
-        pawnThreats = {
-                {kingPosition.x - 1, kingPosition.y - 1},
-                {kingPosition.x - 1, kingPosition.y + 1}
-        };
-    } else {
-        // White king is threatened by black pawns moving up (increasing x)
-        pawnThreats = {
-                {kingPosition.x + 1, kingPosition.y - 1},
-                {kingPosition.x + 1, kingPosition.y + 1}
-        };
-    }
-
-    threatPositions.insert(threatPositions.end(), pawnThreats.begin(), pawnThreats.end());
-
-    // Knight threats
-    std::vector<sf::Vector2i> knightThreats = {
-            {kingPosition.x - 2, kingPosition.y - 1},
-            {kingPosition.x - 1, kingPosition.y - 2},
-            {kingPosition.x + 1, kingPosition.y - 2},
-            {kingPosition.x + 2, kingPosition.y - 1},
-            {kingPosition.x + 2, kingPosition.y + 1},
-            {kingPosition.x + 1, kingPosition.y + 2},
-            {kingPosition.x - 1, kingPosition.y + 2},
-            {kingPosition.x - 2, kingPosition.y + 1}
-    };
-    threatPositions.insert(threatPositions.end(), knightThreats.begin(), knightThreats.end());
-
-    // Line threats (for rooks and queens)
-    for (int i = -7; i <= 7; ++i) {
-        if (i != 0) {
-            threatPositions.emplace_back(kingPosition.x, kingPosition.y + i); // Column
-            threatPositions.emplace_back(kingPosition.x + i, kingPosition.y); // Row
-        }
-    }
-
-    // Diagonal threats (for bishops and queens)
-    for (int i = -7; i <= 7; ++i) {
-        if (i != 0) {
-            threatPositions.emplace_back(kingPosition.x + i, kingPosition.y + i);
-            threatPositions.emplace_back(kingPosition.x + i, kingPosition.y - i);
-        }
-    }
-
-    // King threats
-    std::vector<sf::Vector2i> kingThreats = {
-            {kingPosition.x - 1, kingPosition.y - 1},
-            {kingPosition.x, kingPosition.y - 1},
-            {kingPosition.x + 1, kingPosition.y - 1},
-            {kingPosition.x + 1, kingPosition.y},
-            {kingPosition.x + 1, kingPosition.y + 1},
-            {kingPosition.x, kingPosition.y + 1},
-            {kingPosition.x - 1, kingPosition.y + 1},
-            {kingPosition.x - 1, kingPosition.y}
-    };
-    threatPositions.insert(threatPositions.end(), kingThreats.begin(), kingThreats.end());
-
-    // Remove positions that are off the board
-    threatPositions.erase(std::remove_if(threatPositions.begin(), threatPositions.end(),
-                                         [](const sf::Vector2i& pos) { return pos.x < 0 || pos.x > 7 || pos.y < 0 || pos.y > 7; }),
-                          threatPositions.end());
-
-    return threatPositions;
 }

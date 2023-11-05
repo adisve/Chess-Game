@@ -32,7 +32,7 @@ public:
     [[nodiscard]] static bool IsWithinBounds(sf::Vector2i position) {
         return position.x >= 0 && position.x < 8 && position.y >= 0 && position.y < 8;
     }
-    [[nodiscard]] static std::vector<sf::Vector2i> GetThreateningPiecesPositions(const sf::Vector2i& kingPosition, Color kingColor);
+
 
 private:
     void DrawAvailableMoves(sf::RenderWindow &window, const std::vector<sf::Vector2i> &availableMoves, const std::shared_ptr<Piece>& selectedPiece) const;
