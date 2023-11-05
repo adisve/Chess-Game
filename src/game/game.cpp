@@ -68,7 +68,7 @@ bool Game::IsValidMove(const sf::Vector2i& move) {
 
 void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
 
-    chessBoard.MoveSelectedPiece(move.x, move.y);
+    chessBoard.MoveSelectedPiece(move);
     switch (turn) {
         case Color::BLACK:
             turn = Color::WHITE;

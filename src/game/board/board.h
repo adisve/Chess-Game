@@ -19,8 +19,8 @@ class Board {
 private:
     using Row = std::array<std::optional<std::shared_ptr<Piece>>, 8>;
     std::vector<std::shared_ptr<Piece>> capturedPieces;
-    std::array<Row, 8> board; // Holding board state
-    std::shared_ptr<Piece> lastMovedPiece; // Pointer to the last moved piece
+    std::array<Row, 8> board;
+    std::shared_ptr<Piece> lastMovedPiece;
     std::shared_ptr<Piece> selectedPiece = nullptr;
     sf::Vector2i lastMovedPiecePreviousPosition;
     sf::Vector2i selectedPosition = {-1, -1};
@@ -28,7 +28,7 @@ public:
 
     void Draw(sf::RenderWindow& window);
     void Populate();
-    void MoveSelectedPiece(int toRow, int toCol);
+    void MoveSelectedPiece(sf::Vector2i toPosition);
     [[nodiscard]] std::vector<sf::Vector2i> GetAvailableMovesForSelectedPiece() const;
     std::shared_ptr<Piece> GetPieceAt(int row, int col);
 

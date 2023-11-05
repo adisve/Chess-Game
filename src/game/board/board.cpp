@@ -115,19 +115,19 @@ std::shared_ptr<Piece> Board::GetPieceAt(int row, int col) {
 }
 
 
-void Board::MoveSelectedPiece(int toRow, int toCol) {
-    auto attackedPiece = GetPieceAt(toRow, toCol);
+void Board::MoveSelectedPiece(sf::Vector2i toPosition) {
+    auto attackedPiece = GetPieceAt(toPosition.x, toPosition.y);
 
     if (attackedPiece && attackedPiece->GetColor() != selectedPiece->GetColor()) {
         capturedPieces.push_back(attackedPiece);
-        board[toRow][toCol] = nullptr;
+        board[toPosition.x][toPosition.y] = nullptr;
     }
 
     board[selectedPiece->GetPosition().x][selectedPiece->GetPosition().y] = nullptr;
-    selectedPiece->SetPosition({toRow, toCol});
-    board[toRow][toCol] = selectedPiece;
+    selectedPiece->SetPosition({toPosition.x, toPosition.y});
+    board[toPosition.x][toPosition.y] = selectedPiece;
     selectedPiece->sprite.setOrigin((float)selectedPiece->GetTexture().getSize().x / 2, (float)selectedPiece->GetTexture().getSize().y / 2);
-    selectedPiece->sprite.setPosition((float)toCol * 100 + 50, (float)toRow * 100 + 50);
+    selectedPiece->sprite.setPosition((float)toPosition.y * 100 + 50, (float)toPosition.x * 100 + 50);
 }
 
 

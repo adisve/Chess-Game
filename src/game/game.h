@@ -19,7 +19,6 @@ private:
     sf::Vector2i selectedPosition;
     Color turn;
 
-    // New function declarations
     void HandleLeftMouseClick(int mouseX, int mouseY);
     void SelectPieceAt(int row, int col);
     bool IsValidMove(const sf::Vector2i& move);
