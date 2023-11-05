@@ -91,7 +91,11 @@ private:
     sf::Vector2i blackKingPosition = {4, 0};
     sf::Vector2i whiteKingPosition = {4, 7};
 
-    bool CheckForPawns(sf::Vector2i vector2, Color color) const;
+    bool IsKnightThreat(const sf::Vector2i& kingPos, Color kingColor) const;
+    bool IsPawnThreat(const sf::Vector2i& kingPos, Color kingColor) const;
+    bool IsRookThreat(const sf::Vector2i& kingPos, Color kingColor) const;
+    bool IsBishopThreat(const sf::Vector2i& kingPos, Color kingColor) const;
+    bool IsQueenThreat(const sf::Vector2i& kingPos, Color kingColor) const;
 };
 
 #endif //CHESS_GAME_H

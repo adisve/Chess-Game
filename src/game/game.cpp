@@ -149,41 +149,100 @@ std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() const {
 
 bool Game::IsKingInCheck(Color color) const {
     auto kingPosition = GetKingPosition(color);
+    auto king = chessBoard.GetPieceAt(kingPosition);
 
-    // Check for pawns
-    if (CheckForPawns(kingPosition, color)) {
-        std::cout << "THERE IS A PAWN ATTACKING !!!!!" << std::endl;
-        return true;
-    } else {
-        std::cout << "There are no pawns attacking your king" << std::endl;
+    return IsPawnThreat(kingPosition, color) ||
+           IsKnightThreat(kingPosition, color) ||
+           IsBishopThreat(kingPosition, color) ||
+           IsRookThreat(kingPosition, color) ||
+           IsQueenThreat(kingPosition, color);
+}
+
+bool Game::IsPawnThreat(const sf::Vector2i& kingPos, Color kingColor) const {
+    int direction = (kingColor == Color::White) ? -1 : 1;
+    std::vector<sf::Vector2i> attackPositions = {
+            {kingPos.x - 1, kingPos.y + direction},
+            {kingPos.x + 1, kingPos.y + direction}
+    };
+
+    for (const auto& pos : attackPositions) {
+        auto piece = chessBoard.GetPieceAt(pos);
+        if (piece && piece->GetType() == PieceType::Pawn && piece->GetColor() != kingColor) {
+            return true;
+        }
     }
-
-
     return false;
 }
 
-bool Game::CheckForPawns(sf::Vector2i kingPosition, Color color) const {
-    std::vector<sf::Vector2i> possiblePawnAttacks;
+bool Game::IsKnightThreat(const sf::Vector2i& kingPos, Color kingColor) const {
+    std::vector<sf::Vector2i> knightMoves = {
+            {kingPos.x - 1, kingPos.y - 2}, {kingPos.x + 1, kingPos.y - 2},
+            {kingPos.x + 2, kingPos.y - 1}, {kingPos.x + 2, kingPos.y + 1},
+            {kingPos.x + 1, kingPos.y + 2}, {kingPos.x - 1, kingPos.y + 2},
+            {kingPos.x - 2, kingPos.y + 1}, {kingPos.x - 2, kingPos.y - 1}
+    };
 
-    if (color == Color::White) {
-        possiblePawnAttacks.emplace_back(kingPosition.x - 1, kingPosition.y - 1);
-        possiblePawnAttacks.emplace_back(kingPosition.x + 1, kingPosition.y - 1);
-    } else {
-        possiblePawnAttacks.emplace_back(kingPosition.x - 1, kingPosition.y + 1);
-        possiblePawnAttacks.emplace_back(kingPosition.x + 1, kingPosition.y + 1);
-    }
-
-    // Now use std::any_of to check these vectors
-    return std::any_of(possiblePawnAttacks.begin(), possiblePawnAttacks.end(),
-       [this, color](const sf::Vector2i& attackPosition) {
-        std::cout << "Checking for attacking pawn at x: " << attackPosition.x << ", y: " << attackPosition.y << std::endl;
-        // First, make sure the attack position is within the bounds of the board
-        if (Board::IsWithinBounds(attackPosition)) {
-            return false;
+    for (const auto& move : knightMoves) {
+        if (Board::IsWithinBounds(move)) {
+            auto piece = chessBoard.GetPieceAt(move);
+            if (piece && piece->GetType() == PieceType::Knight && piece->GetColor() != kingColor) {
+                return true;
+            }
         }
+    }
+    return false;
+}
 
-        auto pawn = chessBoard.GetPieceAt(attackPosition);
-        // Make sure there is a pawn at the attack position and it's an opposing pawn
-        return pawn && pawn->GetType() == PieceType::Pawn && pawn->GetColor() != color;
-    });
+bool Game::IsRookThreat(const sf::Vector2i& kingPos, Color kingColor) const {
+    std::vector<sf::Vector2i> directions = {
+            {0, -1}, {0, 1}, {-1, 0}, {1, 0}
+    };
+
+    // Check each direction
+    for (const auto& dir : directions) {
+        sf::Vector2i currentPos = kingPos;
+        while (true) {
+            currentPos += dir;
+            if (!Board::IsWithinBounds(currentPos)) break;
+            auto piece = chessBoard.GetPieceAt(currentPos);
+            if (piece) {
+                if (piece->GetType() == PieceType::Rook && piece->GetColor() != kingColor) {
+                    return true;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+bool Game::IsBishopThreat(const sf::Vector2i& kingPos, Color kingColor) const {
+    std::vector<sf::Vector2i> directions = {
+            {-1, -1}, {1, -1}, {-1, 1}, {1, 1}
+    };
+
+    for (const auto& dir : directions) {
+        sf::Vector2i currentPos = kingPos;
+        while (true) {
+            currentPos += dir;
+            if (!Board::IsWithinBounds(currentPos)) break;
+
+            auto piece = chessBoard.GetPieceAt(currentPos);
+            if (piece) {
+                if (piece->GetType() == PieceType::Bishop && piece->GetColor() != kingColor) {
+                    return true;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+bool Game::IsQueenThreat(const sf::Vector2i& kingPos, Color kingColor) const {
+    return IsRookThreat(kingPos, kingColor) || IsBishopThreat(kingPos, kingColor);
 }

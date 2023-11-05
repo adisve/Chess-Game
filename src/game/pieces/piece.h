@@ -35,12 +35,7 @@ public:
     bool CanThreatenKing(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) const;
     virtual std::vector<sf::Vector2i> AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const = 0;
     virtual const sf::Texture& GetTexture() const = 0;
-    static bool IsKnightThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) ;
-    bool IsPawnThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) const;
-    static bool IsRookThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
-    static bool IsBishopThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
-    static bool IsQueenThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
-    static bool IsKingThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) ;
+
     bool CanPromote(const sf::Vector2i& move) const {
         switch (color) {
             case Color::White:
