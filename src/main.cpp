@@ -3,7 +3,6 @@
 int main() {
     Game chessGame;
     chessGame.Run();
-
     return 0;
 }
 

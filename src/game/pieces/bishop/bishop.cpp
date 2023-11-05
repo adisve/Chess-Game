@@ -6,15 +6,15 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Bishop::Bishop(sf::Vector2i position, Color color) : Piece(position, color) {
-    if (color == Color::BLACK) {
+Bishop::Bishop(sf::Vector2i position, Color color, PieceType type) : Piece(position, color, type) {
+    if (color == Color::Black) {
         LoadTexture("assets/sprites/bishop-black.png");
     } else {
         LoadTexture("assets/sprites/bishop-white.png");
     }
 }
 
-std::vector<sf::Vector2i> Bishop::AvailableMoves(Board board) const {
+std::vector<sf::Vector2i> Bishop::AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const {
     std::vector<sf::Vector2i> moves;
     std::vector<std::pair<int, int>> directions = {
             {-1, 1}, {1, 1}, {1, -1}, {-1, -1}
@@ -24,10 +24,6 @@ std::vector<sf::Vector2i> Bishop::AvailableMoves(Board board) const {
         moves.insert(moves.end(), directionMoves.begin(), directionMoves.end());
     }
     return moves;
-}
-
-bool Bishop::CanMove(sf::Vector2i toPosition, const Board& board) const {
-    return std::abs(GetPosition().x - toPosition.x) == std::abs(GetPosition().y - toPosition.y);
 }
 
 const sf::Texture &Bishop::GetTexture() const {

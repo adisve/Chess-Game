@@ -6,15 +6,15 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Queen::Queen(sf::Vector2i position, Color color) : Piece(position, color) {
-    if (color == Color::BLACK) {
+Queen::Queen(sf::Vector2i position, Color color, PieceType type) : Piece(position, color, type) {
+    if (color == Color::Black) {
         LoadTexture("assets/sprites/queen-black.png");
     } else {
         LoadTexture("assets/sprites/queen-white.png");
     }
 }
 
-std::vector<sf::Vector2i> Queen::AvailableMoves(Board board) const {
+std::vector<sf::Vector2i> Queen::AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const {
     std::vector<sf::Vector2i> moves;
     std::vector<std::pair<int, int>> directions = {
             {-1, 1}, {1, 1}, {1, -1}, {-1, -1},
@@ -25,10 +25,6 @@ std::vector<sf::Vector2i> Queen::AvailableMoves(Board board) const {
         moves.insert(moves.end(), directionMoves.begin(), directionMoves.end());
     }
     return moves;
-}
-
-bool Queen::CanMove(sf::Vector2i toPosition, const Board &board) const {
-    return false;
 }
 
 const sf::Texture &Queen::GetTexture() const {

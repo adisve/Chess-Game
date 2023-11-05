@@ -9,9 +9,8 @@
 
 class Queen : public Piece {
 public:
-    Queen(sf::Vector2i position, Color color);
-    bool CanMove(sf::Vector2i toPosition, const Board& board) const override;
-    std::vector<sf::Vector2i> AvailableMoves(Board board) const override;
+    Queen(sf::Vector2i position, Color color, PieceType type);
+    std::vector<sf::Vector2i> AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const override;
     const sf::Texture& GetTexture() const override;
 };
 

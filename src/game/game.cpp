@@ -8,7 +8,7 @@
 
 Game::Game() : window(sf::VideoMode(800, 800), "Chess Game") {
     chessBoard.Populate();
-    this->turn = Color::WHITE;
+    this->playerTurn = Color::White;
 }
 
 void Game::Run() {
@@ -18,7 +18,7 @@ void Game::Run() {
         while (window.pollEvent(event)) {
             HandleEvent(event);
         }
-        chessBoard.Draw(window);
+        chessBoard.Draw(window, selectedPosition, GetAvailableMovesForSelectedPiece());
         window.display();
     }
 }
@@ -35,52 +35,102 @@ void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
     int row = mouseY / 100;
     int col = mouseX / 100;
 
-    if (chessBoard.GetSelectedPiece() == nullptr) {
+    if (!GetSelectedPiece()) {
         SelectPieceAt(row, col);
     } else {
         sf::Vector2i move = {row, col};
         if (IsValidMove(move)) {
             MoveSelectedPieceTo(move);
         } else {
-            if (chessBoard.GetPieceAt(row, col)) {
+            if (chessBoard.GetPieceAt({row, col})) {
                 SelectPieceAt(row, col);
-            } DeselectPiece();
+            } else {
+                DeselectPiece();
+            }
         }
     }
 }
 
+
 void Game::SelectPieceAt(int row, int col) {
-    auto piece = chessBoard.GetPieceAt(row, col);
+    auto piece = chessBoard.GetPieceAt({row, col});
     if (piece) {
-        if (piece->GetColor() == turn) {
-            chessBoard.SetSelectedPosition({row, col});
-            chessBoard.SetSelectedPiece(piece);
+        if (piece->GetColor() == playerTurn) {
+            SetSelectedPosition({row, col});
+            SetSelectedPiece(piece);
         } else {
             DeselectPiece();
         }
     }
 }
 
-bool Game::IsValidMove(const sf::Vector2i& move) {
-    std::vector<sf::Vector2i> availableMoves = chessBoard.GetSelectedPiece()->AvailableMoves(chessBoard);
+bool Game::IsValidMove(const sf::Vector2i& move) const {
+    std::vector<sf::Vector2i> availableMoves = GetAvailableMovesForSelectedPiece();
     return std::find(availableMoves.begin(), availableMoves.end(), move) != availableMoves.end();
 }
 
-void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
+void Game::DeselectPiece() {
+    SetSelectedPiece(nullptr);
+    SetSelectedPosition({-1, -1});
+}
 
-    chessBoard.MoveSelectedPiece(move);
-    switch (turn) {
-        case Color::BLACK:
-            turn = Color::WHITE;
+void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
+    auto attackedPiece = chessBoard.GetPieceAt({move.x, move.y});
+
+    if (attackedPiece && attackedPiece->GetColor() != selectedPiece->GetColor()) {
+        capturedPieces.push_back(attackedPiece);
+        chessBoard.UpdateBoardPosition(move, nullptr);
+    }
+
+    SetLastMovedPiece(selectedPiece);
+    SetLastMovedPiecePreviousPosition(selectedPiece->GetPosition());
+
+    auto oldPosition = selectedPiece->GetPosition();
+    chessBoard.UpdateBoardPosition(oldPosition, nullptr);
+    chessBoard.UpdateBoardPosition(move, selectedPiece);
+    selectedPiece->SetPosition(move);
+
+    selectedPiece->sprite.setOrigin((float)selectedPiece->GetTexture().getSize().x / 2, (float)selectedPiece->GetTexture().getSize().y / 2);
+    selectedPiece->sprite.setPosition((float)move.y * 100 + 50, (float)move.x * 100 + 50);
+
+    switch (playerTurn) {
+        case Color::Black:
+            playerTurn = Color::White;
             break;
-        case Color::WHITE:
-            turn = Color::BLACK;
+        case Color::White:
+            playerTurn = Color::Black;
     }
     DeselectPiece();
 }
 
-void Game::DeselectPiece() {
-    chessBoard.SetSelectedPiece(nullptr);
-    chessBoard.SetSelectedPosition({-1, -1});
+std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() const {
+    std::vector<sf::Vector2i> legalMoves;
+    if (selectedPiece) {
+        auto availableMoves = selectedPiece->AvailableMoves(chessBoard, lastMovedPiece, lastMovedPiecePreviousPosition);
+        for (const auto& move : availableMoves) {
+            // 1. Validate all moves before showing them to the player
+            //    - Check if the move would put the players king in check
+            //    - If it would, then the move is not valid
+            // 2. If the move is valid, then show it to the player by adding to legalMoves
+
+            // For now just return all available moves
+            legalMoves.push_back(move);
+        }
+    }
+    return legalMoves;
 }
 
+bool Game::IsKingInCheck(Color color) const {
+    std::cout << "Checking if king is in check for color " << (color == Color::White ? "white" : "black") << std::endl;
+    sf::Vector2i kingPosition = GetKingPosition(color);
+    std::cout << "King position: " << kingPosition.x << ", " << kingPosition.y << std::endl;
+    auto threatPositions = Board::GetThreateningPiecesPositions(kingPosition, color);
+
+    return std::any_of(threatPositions.begin(), threatPositions.end(),
+                       [this, kingPosition, color](const sf::Vector2i& pos) {
+                           std::shared_ptr<Piece> piece = chessBoard.GetPieceAt({pos.x, pos.y});
+                           // If there is a piece of opposing color on this square that can threaten the king, then the king is in check.
+                           std::cout << "Checking if piece at " << pos.x << ", " << pos.y << " can threaten king at " << kingPosition.x << ", " << kingPosition.y << std::endl;
+                           return piece && piece->GetColor() != color && piece->CanThreatenKing(pos, kingPosition, chessBoard);
+                       });
+}

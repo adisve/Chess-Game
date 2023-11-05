@@ -6,15 +6,15 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Knight::Knight(sf::Vector2i position, Color color) : Piece(position, color) {
-    if (color == Color::BLACK) {
+Knight::Knight(sf::Vector2i position, Color color, PieceType type) : Piece(position, color, type) {
+    if (color == Color::Black) {
         LoadTexture("assets/sprites/knight-black.png");
     } else {
         LoadTexture("assets/sprites/knight-white.png");
     }
 }
 
-std::vector<sf::Vector2i> Knight::AvailableMoves(Board board) const {
+std::vector<sf::Vector2i> Knight::AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const {
     std::vector<sf::Vector2i> moves;
 
     std::vector<sf::Vector2i> potentialMoves = {
@@ -27,7 +27,7 @@ std::vector<sf::Vector2i> Knight::AvailableMoves(Board board) const {
         int newCol = GetPosition().y + move.y;
 
         if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-            std::shared_ptr<Piece> pieceAtDestination = board.GetPieceAt(newRow, newCol);
+            std::shared_ptr<Piece> pieceAtDestination = board.GetPieceAt({newRow, newCol});
 
             if (!pieceAtDestination || pieceAtDestination->GetColor() != this->GetColor()) {
                 moves.emplace_back(newRow, newCol);
@@ -36,11 +36,6 @@ std::vector<sf::Vector2i> Knight::AvailableMoves(Board board) const {
     }
 
     return moves;
-}
-
-bool Knight::CanMove(sf::Vector2i toPosition, const Board &board) const {
-    return (std::abs(GetPosition().x - toPosition.x) == 2 && std::abs(GetPosition().y - toPosition.y) == 1) ||
-           (std::abs(GetPosition().x - toPosition.x) == 1 && std::abs(GetPosition().y - toPosition.y) == 2);
 }
 
 const sf::Texture &Knight::GetTexture() const {

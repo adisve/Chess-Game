@@ -8,5 +8,6 @@
 #endif //CHESSGAME_ENUM_H
 
 enum Color {
-    BLACK, WHITE
+    Black,
+    White
 };

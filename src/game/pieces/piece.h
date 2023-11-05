@@ -11,21 +11,37 @@
 
 class Board;
 
+enum class PieceType {
+    Pawn,
+    Rook,
+    Knight,
+    Bishop,
+    Queen,
+    King
+};
+
 class Piece {
 private:
-
+    PieceType type;
     sf::Vector2i position;
     Color color;
 
 public:
-    Piece(sf::Vector2i position, Color color) : position(position), color(color) {}
-    std::vector<sf::Vector2i> FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, Board board) const;
+    Piece(sf::Vector2i position, Color color, PieceType type) : position(position), color(color), type(type) {}
+    std::vector<sf::Vector2i> FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, const Board& board) const;
     virtual ~Piece() = default;
     sf::Sprite sprite;
 
-    virtual bool CanMove(sf::Vector2i toPosition, const Board& board) const = 0;
-    virtual std::vector<sf::Vector2i> AvailableMoves(Board board) const = 0;
+    bool CanThreatenKing(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) const;
+    virtual std::vector<sf::Vector2i> AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const = 0;
     virtual const sf::Texture& GetTexture() const = 0;
+    static bool IsKnightThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) ;
+    bool IsPawnThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) const;
+    static bool IsRookThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
+    static bool IsBishopThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
+    static bool IsQueenThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
+    static bool IsKingThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) ;
+
 
     [[nodiscard]] sf::Vector2i GetPosition() const {
         return position;
@@ -37,6 +53,10 @@ public:
 
     void SetPosition(const sf::Vector2i& newPosition) {
         position = newPosition;
+    }
+
+    PieceType GetType() const {
+        return type;
     }
 
 protected:
