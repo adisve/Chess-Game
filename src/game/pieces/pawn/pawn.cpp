@@ -93,7 +93,3 @@ bool Pawn::CanEnPassant(sf::Vector2i enPassantPosition, sf::Vector2i lastMovedPi
            CanCaptureAt(enPassantPosition, board);
 }
 
-const sf::Texture &Pawn::GetTexture() const {
-    return texture;
-}
-

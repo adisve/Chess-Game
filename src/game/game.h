@@ -24,6 +24,8 @@ public:
         return color == Color::White ? whiteKingPosition : blackKingPosition;
     };
 
+    void SelectPieceAt(sf::Vector2i position);
+
     void SetSelectedPiece(std::shared_ptr<Piece> piece) {
         selectedPiece = std::move(piece);
     }
@@ -51,6 +53,8 @@ public:
     void CapturePieceAt(const sf::Vector2i& position);
 
     void PromotePawnAt(const sf::Vector2i& position, PieceType type);
+
+    void UpdateBoardWithMove(sf::Vector2i move);
 
     Color GetPlayerTurn() const {
         return playerTurn;
@@ -87,7 +91,7 @@ private:
     sf::Vector2i whiteKingPosition = {4, 7};
 
     void HandleLeftMouseClick(int mouseX, int mouseY);
-    void SelectPieceAt(int row, int col);
+
     bool IsValidMove(const sf::Vector2i& move) const;
     bool IsMoveCheckmate(const sf::Vector2i& move);
 };

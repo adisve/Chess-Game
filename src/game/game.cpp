@@ -5,6 +5,11 @@
 #include <iostream>
 #include "game.h"
 #include "pieces/color.h"
+#include "pieces/knight/knight.h"
+#include "pieces/queen/queen.h"
+#include "pieces/rook/rook.h"
+#include "pieces/bishop/bishop.h"
+#include "pieces/pawn/pawn.h"
 
 Game::Game() : window(sf::VideoMode(800, 800), "Chess Game") {
     chessBoard.Populate();
@@ -32,18 +37,15 @@ void Game::HandleEvent(sf::Event& event) {
 }
 
 void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
-    int row = mouseY / 100;
-    int col = mouseX / 100;
-
+    sf::Vector2i position = {mouseY / 100, mouseX / 100};
     if (!GetSelectedPiece()) {
-        SelectPieceAt(row, col);
+        SelectPieceAt(position);
     } else {
-        sf::Vector2i move = {row, col};
-        if (IsValidMove(move)) {
-            MoveSelectedPieceTo(move);
+        if (IsValidMove(position)) {
+            MoveSelectedPieceTo(position);
         } else {
-            if (chessBoard.GetPieceAt({row, col})) {
-                SelectPieceAt(row, col);
+            if (chessBoard.GetPieceAt(position)) {
+                SelectPieceAt(position);
             } else {
                 DeselectPiece();
             }
@@ -52,11 +54,11 @@ void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
 }
 
 
-void Game::SelectPieceAt(int row, int col) {
-    auto piece = chessBoard.GetPieceAt({row, col});
+void Game::SelectPieceAt(sf::Vector2i position) {
+    auto piece = chessBoard.GetPieceAt(position);
     if (piece) {
         if (piece->GetColor() == playerTurn) {
-            SetSelectedPosition({row, col});
+            SetSelectedPosition(position);
             SetSelectedPiece(piece);
         } else {
             DeselectPiece();
@@ -85,13 +87,7 @@ void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
     SetLastMovedPiece(selectedPiece);
     SetLastMovedPiecePreviousPosition(selectedPiece->GetPosition());
 
-    auto oldPosition = selectedPiece->GetPosition();
-    chessBoard.UpdateBoardPosition(oldPosition, nullptr);
-    chessBoard.UpdateBoardPosition(move, selectedPiece);
-    selectedPiece->SetPosition(move);
-
-    selectedPiece->sprite.setOrigin((float)selectedPiece->GetTexture().getSize().x / 2, (float)selectedPiece->GetTexture().getSize().y / 2);
-    selectedPiece->sprite.setPosition((float)move.y * 100 + 50, (float)move.x * 100 + 50);
+    UpdateBoardWithMove(move);
 
     switch (playerTurn) {
         case Color::Black:
@@ -101,6 +97,45 @@ void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
             playerTurn = Color::Black;
     }
     DeselectPiece();
+}
+
+void Game::UpdateBoardWithMove(sf::Vector2i move) {
+    chessBoard.UpdateBoardPosition(selectedPiece->GetPosition(), nullptr);
+    chessBoard.UpdateBoardPosition(move, selectedPiece);
+    selectedPiece->SetPosition(move);
+
+    if (selectedPiece->CanPromote(move)) {
+        PromotePawnAt(move, PieceType::Queen);
+    }
+
+    selectedPiece->sprite.setOrigin((float)selectedPiece->GetTexture().getSize().x / 2, (float)selectedPiece->GetTexture().getSize().y / 2);
+    selectedPiece->sprite.setPosition((float)move.y * 100 + 50, (float)move.x * 100 + 50);
+
+    if (selectedPiece->GetType() == PieceType::Pawn) {
+        auto pawn = std::dynamic_pointer_cast<Pawn>(selectedPiece);
+        pawn->SetHasMoved();
+    }
+}
+
+void Game::PromotePawnAt(const sf::Vector2i& position, PieceType type) {
+    auto pawn = chessBoard.GetPieceAt(position);
+    switch (type) {
+        case PieceType::Queen:
+            chessBoard.UpdateBoardPosition(position, std::make_shared<Queen>(position, pawn->GetColor(), pawn->GetType()));
+            break;
+        case PieceType::Rook:
+            chessBoard.UpdateBoardPosition(position, std::make_shared<Rook>(position, pawn->GetColor(), pawn->GetType()));
+            break;
+        case PieceType::Bishop:
+            chessBoard.UpdateBoardPosition(position, std::make_shared<Bishop>(position, pawn->GetColor(), pawn->GetType()));
+            break;
+        case PieceType::Knight:
+            chessBoard.UpdateBoardPosition(position, std::make_shared<Knight>(position, pawn->GetColor(), pawn->GetType()));
+            break;
+        case PieceType::Pawn:
+        case PieceType::King:
+            break;
+    }
 }
 
 std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() const {

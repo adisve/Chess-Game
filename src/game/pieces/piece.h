@@ -41,7 +41,14 @@ public:
     static bool IsBishopThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
     static bool IsQueenThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) ;
     static bool IsKingThreat(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition) ;
-
+    bool CanPromote(const sf::Vector2i& move) const {
+        switch (color) {
+            case Color::White:
+                return type == PieceType::Pawn && move.x == 0;
+            case Color::Black:
+                return type == PieceType::Pawn && move.x == 7;
+        }
+    }
 
     [[nodiscard]] sf::Vector2i GetPosition() const {
         return position;
