@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Rook::Rook(int row, int col, Color color) : Piece(row, col, color) {
+Rook::Rook(sf::Vector2i position, Color color) : Piece(position, color) {
     if (color == Color::BLACK) {
         LoadTexture("assets/sprites/rook-black.png");
     } else {
@@ -27,9 +27,9 @@ std::vector<sf::Vector2i> Rook::AvailableMoves(Board board) const {
 }
 
 
-bool Rook::CanMove(int toRow, int toCol, const Board &board) const {
+bool Rook::CanMove(sf::Vector2i toPosition, const Board &board) const {
     auto moves = AvailableMoves(board);
-    return std::find(moves.begin(), moves.end(), sf::Vector2i(toRow, toCol)) != moves.end();
+    return std::find(moves.begin(), moves.end(), sf::Vector2i(toPosition.x, toPosition.y)) != moves.end();
 }
 
 

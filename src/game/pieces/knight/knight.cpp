@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Knight::Knight(int row, int col, Color color) : Piece(row, col, color) {
+Knight::Knight(sf::Vector2i position, Color color) : Piece(position, color) {
     if (color == Color::BLACK) {
         LoadTexture("assets/sprites/knight-black.png");
     } else {
@@ -23,13 +23,13 @@ std::vector<sf::Vector2i> Knight::AvailableMoves(Board board) const {
     };
 
     for (const auto& move : potentialMoves) {
-        int newRow = row + move.x;
-        int newCol = col + move.y;
+        int newRow = GetPosition().x + move.x;
+        int newCol = GetPosition().y + move.y;
 
         if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
             std::shared_ptr<Piece> pieceAtDestination = board.GetPieceAt(newRow, newCol);
 
-            if (!pieceAtDestination || pieceAtDestination->color != this->color) {
+            if (!pieceAtDestination || pieceAtDestination->GetColor() != this->GetColor()) {
                 moves.emplace_back(newRow, newCol);
             }
         }
@@ -38,9 +38,9 @@ std::vector<sf::Vector2i> Knight::AvailableMoves(Board board) const {
     return moves;
 }
 
-bool Knight::CanMove(int toRow, int toCol, const Board &board) const {
-    return (std::abs(row - toRow) == 2 && std::abs(col - toCol) == 1) ||
-           (std::abs(row - toRow) == 1 && std::abs(col - toCol) == 2);
+bool Knight::CanMove(sf::Vector2i toPosition, const Board &board) const {
+    return (std::abs(GetPosition().x - toPosition.x) == 2 && std::abs(GetPosition().y - toPosition.y) == 1) ||
+           (std::abs(GetPosition().x - toPosition.x) == 1 && std::abs(GetPosition().y - toPosition.y) == 2);
 }
 
 const sf::Texture &Knight::GetTexture() const {

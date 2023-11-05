@@ -52,7 +52,7 @@ void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
 void Game::SelectPieceAt(int row, int col) {
     auto piece = chessBoard.GetPieceAt(row, col);
     if (piece) {
-        if (piece->color == turn) {
+        if (piece->GetColor() == turn) {
             chessBoard.SetSelectedPosition({row, col});
             chessBoard.SetSelectedPiece(piece);
         } else {
@@ -62,11 +62,7 @@ void Game::SelectPieceAt(int row, int col) {
 }
 
 bool Game::IsValidMove(const sf::Vector2i& move) {
-    std::cout << "Player want to move to: (" << move.x << ", " << move.y << ")\n";
     std::vector<sf::Vector2i> availableMoves = chessBoard.GetSelectedPiece()->AvailableMoves(chessBoard);
-    for (const auto& iterMove : availableMoves) {
-        std::cout << "Move: (" << iterMove.x << ", " << iterMove.y << ")\n";
-    }
     return std::find(availableMoves.begin(), availableMoves.end(), move) != availableMoves.end();
 }
 

@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Bishop::Bishop(int row, int col, Color color) : Piece(row, col, color) {
+Bishop::Bishop(sf::Vector2i position, Color color) : Piece(position, color) {
     if (color == Color::BLACK) {
         LoadTexture("assets/sprites/bishop-black.png");
     } else {
@@ -26,8 +26,8 @@ std::vector<sf::Vector2i> Bishop::AvailableMoves(Board board) const {
     return moves;
 }
 
-bool Bishop::CanMove(int toRow, int toCol, const Board& board) const {
-    return std::abs(row - toRow) == std::abs(col - toCol);
+bool Bishop::CanMove(sf::Vector2i toPosition, const Board& board) const {
+    return std::abs(GetPosition().x - toPosition.x) == std::abs(GetPosition().y - toPosition.y);
 }
 
 const sf::Texture &Bishop::GetTexture() const {

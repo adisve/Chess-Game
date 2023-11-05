@@ -74,7 +74,7 @@ public:
     }
 
 private:
-    void DrawAvailableMoves(sf::RenderWindow& window, const std::vector<sf::Vector2i>& availableMoves, int squareSize);
+    void DrawAvailableMoves(sf::RenderWindow &window, const std::vector<sf::Vector2i> &availableMoves);
     [[nodiscard]] sf::Color DetermineSquareColor(int row, int col) const;
 };
 

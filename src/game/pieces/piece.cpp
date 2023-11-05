@@ -8,8 +8,8 @@
 std::vector<sf::Vector2i> Piece::FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, Board board) const {
     std::vector<sf::Vector2i> moves;
 
-    int i = row + rowIncrement;
-    int j = col + colIncrement;
+    int i = GetPosition().x + rowIncrement;
+    int j = GetPosition().y + colIncrement;
     while (i >= 0 && i < 8 && j >= 0 && j < 8) {
         if (board.GetPieceAt(i, j) == nullptr) {
             moves.emplace_back(i, j);

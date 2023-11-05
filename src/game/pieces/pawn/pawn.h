@@ -9,10 +9,10 @@
 
 class Pawn : public Piece {
 public:
-    Pawn(int row, int col, Color color);
+    Pawn(sf::Vector2i position, Color color);
     bool hasMoved = false;
 
-    bool CanMove(int toRow, int toCol, const Board& board) const override;
+    bool CanMove(sf::Vector2i toPosition, const Board& board) const override;
     std::vector<sf::Vector2i> AvailableMoves(Board board) const override;
     const sf::Texture& GetTexture() const override;
 };

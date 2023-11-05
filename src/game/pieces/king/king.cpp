@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../../board/board.h"
 
-King::King(int row, int col, Color color) : Piece(row, col, color) {
+King::King(sf::Vector2i position, Color color) : Piece(position, color) {
     if (color == Color::BLACK) {
         LoadTexture("assets/sprites/king-black.png");
     } else {
@@ -23,13 +23,13 @@ std::vector<sf::Vector2i> King::AvailableMoves(Board board) const {
     };
 
     for (const auto& move : potentialMoves) {
-        int newRow = row + move.x;
-        int newCol = col + move.y;
+        int newRow = GetPosition().x + move.x;
+        int newCol = GetPosition().y + move.y;
 
         if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
             std::shared_ptr<Piece> pieceAtDestination = board.GetPieceAt(newRow, newCol);
 
-            if (!pieceAtDestination || pieceAtDestination->color != this->color) {
+            if (!pieceAtDestination || pieceAtDestination->GetColor() != this->GetColor()) {
                 moves.emplace_back(newRow, newCol);
             }
         }
@@ -37,7 +37,7 @@ std::vector<sf::Vector2i> King::AvailableMoves(Board board) const {
     return moves;
 }
 
-bool King::CanMove(int toRow, int toCol, const Board &board) const {
+bool King::CanMove(sf::Vector2i toPosition, const Board &board) const {
     return false;
 }
 

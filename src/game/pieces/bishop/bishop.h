@@ -9,8 +9,8 @@
 
 class Bishop : public Piece {
 public:
-    Bishop(int row, int col, Color color);  // Explicit constructor declaration
-    bool CanMove(int toRow, int toCol, const Board& board) const override;
+    Bishop(sf::Vector2i position, Color color);
+    bool CanMove(sf::Vector2i toPosition, const Board& board) const override;
     std::vector<sf::Vector2i> AvailableMoves(Board board) const override;
     const sf::Texture& GetTexture() const override;
 };

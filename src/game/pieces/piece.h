@@ -12,18 +12,32 @@
 class Board;
 
 class Piece {
-public:
-    int row;
-    int col;
+private:
+
+    sf::Vector2i position;
     Color color;
 
-    Piece(int row, int col, Color color) : row(row), col(col), color(color) {}
+public:
+    Piece(sf::Vector2i position, Color color) : position(position), color(color) {}
     std::vector<sf::Vector2i> FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, Board board) const;
     virtual ~Piece() = default;
-    virtual bool CanMove(int toRow, int toCol, const Board& board) const = 0;
+    sf::Sprite sprite;
+
+    virtual bool CanMove(sf::Vector2i toPosition, const Board& board) const = 0;
     virtual std::vector<sf::Vector2i> AvailableMoves(Board board) const = 0;
     virtual const sf::Texture& GetTexture() const = 0;
-    sf::Sprite sprite;
+
+    [[nodiscard]] sf::Vector2i GetPosition() const {
+        return position;
+    }
+
+    Color GetColor() const {
+        return color;
+    }
+
+    void SetPosition(const sf::Vector2i& newPosition) {
+        position = newPosition;
+    }
 
 protected:
     void LoadTexture(const std::string& path) {
@@ -31,8 +45,8 @@ protected:
             std::cerr << "Error loading texture: " << path << std::endl;
         }
         sprite.setTexture(texture);
-        sprite.setOrigin(texture.getSize().x / 2, texture.getSize().y / 2);
-        sprite.setPosition(col * 100 + 50, row * 100 + 50);
+        sprite.setOrigin((float)texture.getSize().x / 2, (float)texture.getSize().y / 2);
+        sprite.setPosition((float)position.y * 100 + 50, (float)position.x * 100 + 50);
     }
 
     sf::Texture texture;

@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Queen::Queen(int row, int col, Color color) : Piece(row, col, color) {
+Queen::Queen(sf::Vector2i position, Color color) : Piece(position, color) {
     if (color == Color::BLACK) {
         LoadTexture("assets/sprites/queen-black.png");
     } else {
@@ -27,7 +27,7 @@ std::vector<sf::Vector2i> Queen::AvailableMoves(Board board) const {
     return moves;
 }
 
-bool Queen::CanMove(int toRow, int toCol, const Board &board) const {
+bool Queen::CanMove(sf::Vector2i toPosition, const Board &board) const {
     return false;
 }
 

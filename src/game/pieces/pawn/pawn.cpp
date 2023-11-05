@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../../board/board.h"
 
-Pawn::Pawn(int row, int col, Color color) : Piece(row, col, color) {
+Pawn::Pawn(sf::Vector2i position, Color color) : Piece(position, color) {
     if (color == Color::BLACK) {
         LoadTexture("assets/sprites/pawn-black.png");
     } else {
@@ -16,7 +16,7 @@ Pawn::Pawn(int row, int col, Color color) : Piece(row, col, color) {
 
 std::vector<sf::Vector2i> Pawn::AvailableMoves(Board board) const {
     std::vector<sf::Vector2i> moves;
-    int direction = (color == Color::WHITE) ? -1 : 1;
+    int direction = (GetColor() == Color::WHITE) ? -1 : 1;
 
     // Helper lambda to check if a position is within board bounds
     auto isWithinBounds = [](int r, int c) {
@@ -24,42 +24,42 @@ std::vector<sf::Vector2i> Pawn::AvailableMoves(Board board) const {
     };
 
     // Single square forward
-    if (isWithinBounds(row + direction, col) && board.GetPieceAt(row + direction, col) == nullptr) {
-        moves.emplace_back(row + direction, col);
+    if (isWithinBounds(GetPosition().x + direction, GetPosition().y) && board.GetPieceAt(GetPosition().x + direction, GetPosition().y) == nullptr) {
+        moves.emplace_back(GetPosition().x + direction, GetPosition().y);
 
         // Double square forward for pawns that haven't moved
-        if (!hasMoved && isWithinBounds(row + 2 * direction, col) && board.GetPieceAt(row + 2 * direction, col) == nullptr) {
-            moves.emplace_back(row + 2 * direction, col);
+        if (!hasMoved && isWithinBounds(GetPosition().x + 2 * direction, GetPosition().y) && board.GetPieceAt(GetPosition().x + 2 * direction, GetPosition().y) == nullptr) {
+            moves.emplace_back(GetPosition().x + 2 * direction, GetPosition().y);
         }
     }
 
     // Diagonal captures
-    if (isWithinBounds(row + direction, col - 1)) {
-        auto leftCapture = board.GetPieceAt(row + direction, col - 1);
-        if (leftCapture && leftCapture->color != this->color) {
-            moves.emplace_back(row + direction, col - 1);
+    if (isWithinBounds(GetPosition().x + direction, GetPosition().y - 1)) {
+        auto leftCapture = board.GetPieceAt(GetPosition().x + direction, GetPosition().y - 1);
+        if (leftCapture && leftCapture->GetColor() != this->GetColor()) {
+            moves.emplace_back(GetPosition().x + direction, GetPosition().y - 1);
         }
     }
 
-    if (isWithinBounds(row + direction, col + 1)) {
-        auto rightCapture = board.GetPieceAt(row + direction, col + 1);
-        if (rightCapture && rightCapture->color != this->color) {
-            moves.emplace_back(row + direction, col + 1);
+    if (isWithinBounds(GetPosition().x + direction, GetPosition().y + 1)) {
+        auto rightCapture = board.GetPieceAt(GetPosition().x + direction, GetPosition().y + 1);
+        if (rightCapture && rightCapture->GetColor() != this->GetColor()) {
+            moves.emplace_back(GetPosition().x + direction, GetPosition().y + 1);
         }
     }
 
     auto lastMovedPiece = board.GetLastMovedPiece();
     auto lastMovedPiecePrevPos = board.GetLastMovedPiecePreviousPosition();
 
-    if (lastMovedPiece && dynamic_cast<Pawn*>(lastMovedPiece.get()) && abs(lastMovedPiecePrevPos.x - row) == 2) {
+    if (lastMovedPiece && dynamic_cast<Pawn*>(lastMovedPiece.get()) && abs(lastMovedPiecePrevPos.x - GetPosition().x) == 2) {
         // Left en passant
-        if (isWithinBounds(row + direction, col - 1) && col - 1 == lastMovedPiecePrevPos.y && row + direction == lastMovedPiecePrevPos.x) {
-            moves.emplace_back(row + direction, col - 1);
+        if (isWithinBounds(GetPosition().x + direction, GetPosition().y - 1) && GetPosition().y - 1 == lastMovedPiecePrevPos.y && GetPosition().x + direction == lastMovedPiecePrevPos.x) {
+            moves.emplace_back(GetPosition().x + direction, GetPosition().y - 1);
         }
 
         // Right en passant
-        if (isWithinBounds(row + direction, col + 1) && col + 1 == lastMovedPiecePrevPos.y && row + direction == lastMovedPiecePrevPos.x) {
-            moves.emplace_back(row + direction, col + 1);
+        if (isWithinBounds(GetPosition().x + direction, GetPosition().y + 1) && GetPosition().y + 1 == lastMovedPiecePrevPos.y && GetPosition().x + direction == lastMovedPiecePrevPos.x) {
+            moves.emplace_back(GetPosition().x + direction, GetPosition().y + 1);
         }
     }
 
@@ -68,18 +68,18 @@ std::vector<sf::Vector2i> Pawn::AvailableMoves(Board board) const {
 
 
 
-bool Pawn::CanMove(int toRow, int toCol, const Board &board) const {
-    if (color == Color::WHITE) {
-        if (col == toCol) {
-            return (row - toRow == 1) || (row == 6 && toRow == 4);
-        } else if (std::abs(col - toCol) == 1) {
-            return row - toRow == 1;
+bool Pawn::CanMove(sf::Vector2i toPosition, const Board &board) const {
+    if (GetColor() == Color::WHITE) {
+        if (GetPosition().y == toPosition.y) {
+            return (GetPosition().x - toPosition.x == 1) || (GetPosition().x == 6 && toPosition.x == 4);
+        } else if (std::abs(GetPosition().y - toPosition.y) == 1) {
+            return GetPosition().x - toPosition.x == 1;
         }
     } else {
-        if (col == toCol) {
-            return (toRow - row == 1) || (row == 1 && toRow == 3);
-        } else if (std::abs(col - toCol) == 1) {
-            return toRow - row == 1;
+        if (GetPosition().y == toPosition.y) {
+            return (toPosition.x - GetPosition().x == 1) || (GetPosition().x == 1 && toPosition.x == 3);
+        } else if (std::abs(GetPosition().y - toPosition.y) == 1) {
+            return toPosition.x - GetPosition().x == 1;
         }
     }
     return false;
