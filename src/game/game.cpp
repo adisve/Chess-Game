@@ -32,16 +32,15 @@ void Game::HandleEvent(sf::Event& event) {
     if (event.type == sf::Event::Closed) {
         window.close();
     } else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        HandleLeftMouseClick(event.mouseButton.x, event.mouseButton.y);
+        HandleLeftMouseClick({event.mouseButton.x / 100, event.mouseButton.y / 100});
     }
 }
 
-void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
-    sf::Vector2i position = {mouseX / 100, mouseY / 100};
+void Game::HandleLeftMouseClick(sf::Vector2i position) {
     if (!GetSelectedPiece()) {
         SelectPieceAt(position);
     } else {
-        if (IsValidMove(position)) {
+        if (CanMoveTo(position)) {
             MoveSelectedPieceTo(position);
         } else {
             if (chessBoard.GetPieceAt(position)) {
@@ -51,6 +50,11 @@ void Game::HandleLeftMouseClick(int mouseX, int mouseY) {
             }
         }
     }
+}
+
+bool Game::CanMoveTo(const sf::Vector2i& move) {
+    std::vector<sf::Vector2i> availableMoves = GetAvailableMovesForSelectedPiece();
+    return std::find(availableMoves.begin(), availableMoves.end(), move) != availableMoves.end();
 }
 
 void Game::SelectPieceAt(sf::Vector2i position) {
@@ -65,10 +69,24 @@ void Game::SelectPieceAt(sf::Vector2i position) {
     }
 }
 
-bool Game::IsValidMove(const sf::Vector2i& move) const {
-    std::vector<sf::Vector2i> availableMoves = GetAvailableMovesForSelectedPiece();
-    return std::find(availableMoves.begin(), availableMoves.end(), move) != availableMoves.end();
+bool Game::IsValidMove(const sf::Vector2i& move) {
+    auto tempMovedPiece = selectedPiece;
+    sf::Vector2i originalPosition = selectedPiece->GetPosition();
+    auto pieceAtDestination = chessBoard.GetPieceAt(move);
+
+    chessBoard.UpdateBoardPosition(originalPosition, nullptr);
+    chessBoard.UpdateBoardPosition(move, tempMovedPiece);
+    tempMovedPiece->SetPosition(move);
+
+    bool movePutsKingInCheck = IsKingInCheck(playerTurn);
+
+    chessBoard.UpdateBoardPosition(move, pieceAtDestination);
+    chessBoard.UpdateBoardPosition(originalPosition, tempMovedPiece);
+    tempMovedPiece->SetPosition(originalPosition);
+
+    return !movePutsKingInCheck;
 }
+
 
 void Game::DeselectPiece() {
     SetSelectedPiece(nullptr);
@@ -87,7 +105,8 @@ void Game::MoveSelectedPieceTo(const sf::Vector2i& move) {
     SetLastMovedPiecePreviousPosition(selectedPiece->GetPosition());
 
     UpdateBoardWithMove(move);
-    SetPlayerTurn(playerTurn == Color::White ? Color::Black : Color::White);
+    UpdateKingPosition(move);
+    TogglePlayerTurn();
     DeselectPiece();
 }
 
@@ -130,13 +149,22 @@ void Game::PromotePawnAt(const sf::Vector2i& position, PieceType type) {
     }
 }
 
-std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() const {
+std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() {
     std::vector<sf::Vector2i> legalMoves;
+
     if (selectedPiece) {
         auto availableMoves = selectedPiece->AvailableMoves(chessBoard, lastMovedPiece, lastMovedPiecePreviousPosition);
-        for (const auto& move : availableMoves) {
-            if (!IsKingInCheck(playerTurn)) {
-                legalMoves.push_back(move);
+        if (!IsKingInCheck(playerTurn)) {
+            for (const auto& move : availableMoves) {
+                if (IsValidMove(move)) {
+                    legalMoves.push_back(move);
+                }
+            }
+        } else if (IsKingInCheck(playerTurn)) {
+            for (const auto& move : availableMoves) {
+                if (MoveOutOfCheckPossible(move) && IsValidMove(move)) {
+                    legalMoves.push_back(move);
+                }
             }
         }
     }
@@ -145,7 +173,6 @@ std::vector<sf::Vector2i> Game::GetAvailableMovesForSelectedPiece() const {
 
 bool Game::IsKingInCheck(Color color) const {
     auto kingPosition = GetKingPosition(color);
-    auto king = chessBoard.GetPieceAt(kingPosition);
 
     return IsPawnThreat(kingPosition, color) ||
            IsKnightThreat(kingPosition, color) ||
@@ -200,7 +227,8 @@ bool Game::IsRookThreat(const sf::Vector2i& kingPos, Color kingColor) const {
             if (!Board::IsWithinBounds(currentPos)) break;
             auto piece = chessBoard.GetPieceAt(currentPos);
             if (piece) {
-                if (piece->GetType() == PieceType::Rook && piece->GetColor() != kingColor) {
+                auto type = piece->GetType();
+                if ((type == PieceType::Rook || type == PieceType::Queen) && piece->GetColor() != kingColor) {
                     return true;
                 } else {
                     break;
@@ -210,7 +238,6 @@ bool Game::IsRookThreat(const sf::Vector2i& kingPos, Color kingColor) const {
     }
     return false;
 }
-
 
 bool Game::IsBishopThreat(const sf::Vector2i& kingPos, Color kingColor) const {
     std::vector<sf::Vector2i> directions = {
@@ -225,7 +252,8 @@ bool Game::IsBishopThreat(const sf::Vector2i& kingPos, Color kingColor) const {
 
             auto piece = chessBoard.GetPieceAt(currentPos);
             if (piece) {
-                if (piece->GetType() == PieceType::Bishop && piece->GetColor() != kingColor) {
+                auto type = piece->GetType();
+                if ((type == PieceType::Bishop || type == PieceType::Queen) && piece->GetColor() != kingColor) {
                     return true;
                 } else {
                     break;
@@ -236,7 +264,26 @@ bool Game::IsBishopThreat(const sf::Vector2i& kingPos, Color kingColor) const {
     return false;
 }
 
-
 bool Game::IsQueenThreat(const sf::Vector2i& kingPos, Color kingColor) const {
     return IsRookThreat(kingPos, kingColor) || IsBishopThreat(kingPos, kingColor);
+}
+
+bool Game::MoveOutOfCheckPossible(const sf::Vector2i& move) {
+    auto originalPosition = selectedPiece->GetPosition();
+    auto pieceAtMovePosition = chessBoard.GetPieceAt(move);
+
+    chessBoard.UpdateBoardPosition(originalPosition, nullptr);
+    chessBoard.UpdateBoardPosition(move, selectedPiece);
+    selectedPiece->SetPosition(move);
+
+    UpdateKingPosition(move);
+
+    bool isKingInCheckAfterMove = IsKingInCheck(playerTurn);
+
+    chessBoard.UpdateBoardPosition(move, pieceAtMovePosition);
+    chessBoard.UpdateBoardPosition(originalPosition, selectedPiece);
+    selectedPiece->SetPosition(originalPosition);
+
+    UpdateKingPosition(originalPosition);
+    return !isKingInCheckAfterMove;
 }

@@ -17,11 +17,10 @@ public:
     Game();
     void Run();
     void HandleEvent(sf::Event& event);
-    void HandleLeftMouseClick(int mouseX, int mouseY);
-    bool IsValidMove(const sf::Vector2i& move) const;
-    bool IsKingInCheck(Color color) const; // Determines if any opponent pieces are currently attacking the players king
-    bool IsKingInCheckmate(Color color) const; // Determines if the player is in checkmate
-
+    void HandleLeftMouseClick(sf::Vector2i position);
+    bool MoveOutOfCheckPossible(const sf::Vector2i& move);
+    bool IsValidMove(const sf::Vector2i& move);
+    bool IsKingInCheck(Color color) const;
 
     sf::Vector2i GetKingPosition(Color color) const {
         return color == Color::White ? whiteKingPosition : blackKingPosition;
@@ -45,39 +44,35 @@ public:
         lastMovedPiecePreviousPosition = position;
     }
 
-    void SetPlayerTurn(Color color) {
-        playerTurn = color;
+    void TogglePlayerTurn() {
+        playerTurn = playerTurn ==  Color::White ? Color::Black : Color::White;
     }
 
     void MoveSelectedPieceTo(const sf::Vector2i& move);
 
     void DeselectPiece();
 
+    bool CanMoveTo(const sf::Vector2i& move);
+
     void PromotePawnAt(const sf::Vector2i& position, PieceType type);
 
     void UpdateBoardWithMove(sf::Vector2i move);
 
-    Color GetPlayerTurn() const {
-        return playerTurn;
+    void UpdateKingPosition(const sf::Vector2i& move) {
+        if (selectedPiece->GetType() == PieceType::King) {
+            if (selectedPiece->GetColor() == Color::White) {
+                whiteKingPosition = move;
+            } else {
+                blackKingPosition = move;
+            }
+        }
     }
 
     std::shared_ptr<Piece> GetSelectedPiece() const {
         return selectedPiece;
     }
 
-    sf::Vector2i GetSelectedPosition() const {
-        return selectedPosition;
-    }
-
-    std::shared_ptr<Piece> GetLastMovedPiece() const {
-        return lastMovedPiece;
-    }
-
-    sf::Vector2i GetLastMovedPiecePreviousPosition() const {
-        return lastMovedPiecePreviousPosition;
-    }
-
-    std::vector<sf::Vector2i> GetAvailableMovesForSelectedPiece() const;
+    std::vector<sf::Vector2i> GetAvailableMovesForSelectedPiece();
 
 private:
     Board chessBoard;

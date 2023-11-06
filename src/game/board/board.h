@@ -23,16 +23,16 @@ private:
 
 public:
 
+    void UpdateBoardPosition(const sf::Vector2i& position, const std::shared_ptr<Piece>& piece) {
+        std::cout << "Updating board position to: " << position.x << ", " << position.y << std::endl;
+        board[position.x][position.y] = piece;
+    }
     void Draw(sf::RenderWindow& window, const sf::Vector2i& selectedPosition, const std::vector<sf::Vector2i>& availableMoves);
     void Populate();
-    void UpdateBoardPosition(const sf::Vector2i& position, std::shared_ptr<Piece> piece) {
-        board[position.x][position.y] = std::move(piece);
-    }
     [[nodiscard]] std::shared_ptr<Piece> GetPieceAt(sf::Vector2i position) const;
     [[nodiscard]] static bool IsWithinBounds(sf::Vector2i position) {
         return position.x >= 0 && position.x < 8 && position.y >= 0 && position.y < 8;
     }
-
 
 private:
     void DrawAvailableMoves(sf::RenderWindow &window, const std::vector<sf::Vector2i> &availableMoves, const std::shared_ptr<Piece>& selectedPiece) const;

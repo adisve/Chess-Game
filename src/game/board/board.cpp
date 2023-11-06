@@ -99,7 +99,7 @@ void Board::Populate() {
 
 
 std::shared_ptr<Piece> Board::GetPieceAt(sf::Vector2i position) const {
-    if (position.x < 0 || position.x >= 8 || position.y < 0 || position.y >= 8) {
+    if (!Board::IsWithinBounds(position)) {
         throw std::out_of_range("Coordinates out of board bounds.");
     }
 

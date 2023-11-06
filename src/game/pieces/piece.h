@@ -54,6 +54,7 @@ public:
     }
 
     void SetPosition(const sf::Vector2i& newPosition) {
+        std::cout << "Setting position to: " << newPosition.x << ", " << newPosition.y << std::endl;
         position = newPosition;
     }
 
