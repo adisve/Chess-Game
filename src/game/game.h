@@ -69,6 +69,8 @@ public:
 
     void SetAvailableMovesForSelectedPiece();
 
+    bool IsCheckmate(Color color);
+
 private:
     Board chessBoard;
     sf::RenderWindow window;

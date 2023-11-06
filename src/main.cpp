@@ -3,6 +3,6 @@
 int main() {
     Game chessGame;
     chessGame.Run();
-    return 0;
+    return EXIT_SUCCESS;
 }
 

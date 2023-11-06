@@ -125,6 +125,12 @@ void Game::MovePieceTo(const sf::Vector2i& destination) {
 
         TogglePlayerTurn();
 
+        // Check for checkmate right after switching turns
+        if (IsCheckmate(playerTurn)) {
+            // If it's checkmate, close the game window
+            window.close();
+        }
+
         DeselectCurrentPiece();
     }
 }
@@ -205,11 +211,35 @@ void Game::SetAvailableMovesForSelectedPiece() {
                 }
             }
         }
-        availableMovesForSelectedPiece = legalMoves;
+
     } else {
         availableMovesForSelectedPiece = {};
     }
 }
+
+bool Game::IsCheckmate(Color color) {
+    if (!IsKingInCheck(color)) {
+        return false;
+    }
+
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            sf::Vector2i pos(x, y);
+            auto piece = chessBoard.GetPieceAt(pos);
+            if (piece && piece->GetColor() == color) {
+                auto moves = piece->AvailableMoves(chessBoard, std::tuple<sf::Vector2i, sf::Vector2i>());
+                for (const auto& move : moves) {
+                    if (IsValidMove(std::get<0>(move))) {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 
 bool Game::IsKingInCheck(Color color) const {
     sf::Vector2i kingPosition = GetKingPosition(color);
@@ -264,7 +294,7 @@ bool Game::IsKingInCheck(Color color) const {
                         if (type == PieceType::Bishop) return true; // Bishop threat
                     }
                 }
-                break; // Blocked by another piece
+                break;
             }
         }
     }
