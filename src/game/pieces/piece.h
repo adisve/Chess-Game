@@ -28,20 +28,22 @@ private:
 
 public:
     Piece(sf::Vector2i position, Color color, PieceType type) : position(position), color(color), type(type) {}
-    std::vector<sf::Vector2i> FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, const Board& board) const;
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, const Board& board) const;
     virtual ~Piece() = default;
     sf::Sprite sprite;
 
-    bool CanThreatenKing(const sf::Vector2i& piecePosition, const sf::Vector2i& kingPosition, const Board& board) const;
-    virtual std::vector<sf::Vector2i> AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const = 0;
+    virtual std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> AvailableMoves(
+            const Board& board,
+            const std::optional<std::tuple<sf::Vector2i, sf::Vector2i>>& lastMove
+    ) const = 0;
     virtual const sf::Texture& GetTexture() const = 0;
 
     bool CanPromote(const sf::Vector2i& move) const {
         switch (color) {
             case Color::White:
-                return type == PieceType::Pawn && move.x == 0;
+                return type == PieceType::Pawn && move.y == 0;
             case Color::Black:
-                return type == PieceType::Pawn && move.x == 7;
+                return type == PieceType::Pawn && move.y == 7;
         }
     }
 
@@ -54,7 +56,6 @@ public:
     }
 
     void SetPosition(const sf::Vector2i& newPosition) {
-        std::cout << "Setting position to: " << newPosition.x << ", " << newPosition.y << std::endl;
         position = newPosition;
     }
 

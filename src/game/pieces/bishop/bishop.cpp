@@ -14,13 +14,13 @@ Bishop::Bishop(sf::Vector2i position, Color color, PieceType type) : Piece(posit
     }
 }
 
-std::vector<sf::Vector2i> Bishop::AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const {
-    std::vector<sf::Vector2i> moves;
+std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> Bishop::AvailableMoves(const Board& board, const std::optional<std::tuple<sf::Vector2i, sf::Vector2i>>& lastMove) const {
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> moves;
     std::vector<std::pair<int, int>> directions = {
             {-1, 1}, {1, 1}, {1, -1}, {-1, -1}
     };
     for (const auto& dir : directions) {
-        std::vector<sf::Vector2i> directionMoves = FindMovesInDirectionForPiece(dir.first, dir.second, board);
+        std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> directionMoves = FindMovesInDirectionForPiece(dir.first, dir.second, board);
         moves.insert(moves.end(), directionMoves.begin(), directionMoves.end());
     }
     return moves;

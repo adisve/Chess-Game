@@ -5,17 +5,20 @@
 #include "../board/board.h"
 
 
-std::vector<sf::Vector2i> Piece::FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, const Board& board) const {
-    std::vector<sf::Vector2i> moves;
+std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> Piece::FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, const Board& board) const {
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> moves;
 
     int i = GetPosition().x + rowIncrement;
     int j = GetPosition().y + colIncrement;
-    while (i >= 0 && i < 8 && j >= 0 && j < 8) {
+    while (Board::IsWithinBounds({i, j})) {
         if (board.GetPieceAt({i, j}) == nullptr) {
-            moves.emplace_back(i, j);
+            sf::Vector2i movePosition = {i, j};
+            moves.emplace_back(movePosition, movePosition);
         } else {
             if (board.GetPieceAt({i, j})->color != color) {
-                moves.emplace_back(i, j);
+                sf::Vector2i attackPosition = {i, j};
+                sf::Vector2i movePosition = {i, j};
+                moves.emplace_back(attackPosition, movePosition);
             }
             break;
         }

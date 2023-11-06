@@ -10,7 +10,7 @@
 class King : public Piece {
 public:
     King(sf::Vector2i position, Color color, PieceType type);
-    std::vector<sf::Vector2i> AvailableMoves(const Board& board, const std::shared_ptr<Piece>& lastMovedPiece, sf::Vector2i lastMovedPiecePreviousPosition) const override;
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> AvailableMoves(const Board& board, const std::optional<std::tuple<sf::Vector2i, sf::Vector2i>>& lastMove) const override;
     const sf::Texture& GetTexture() const override;
 };
 

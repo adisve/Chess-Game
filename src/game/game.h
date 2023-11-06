@@ -18,7 +18,6 @@ public:
     void Run();
     void HandleEvent(sf::Event& event);
     void HandleLeftMouseClick(sf::Vector2i position);
-    bool MoveOutOfCheckPossible(const sf::Vector2i& move);
     bool IsValidMove(const sf::Vector2i& move);
     bool IsKingInCheck(Color color) const;
 
@@ -36,29 +35,21 @@ public:
         selectedPosition = position;
     }
 
-    void SetLastMovedPiece(const std::shared_ptr<Piece>& piece) {
-        lastMovedPiece = piece;
-    }
-
-    void SetLastMovedPiecePreviousPosition(const sf::Vector2i& position) {
-        lastMovedPiecePreviousPosition = position;
-    }
-
     void TogglePlayerTurn() {
         playerTurn = playerTurn ==  Color::White ? Color::Black : Color::White;
     }
 
-    void MoveSelectedPieceTo(const sf::Vector2i& move);
+    void MovePieceTo(const sf::Vector2i& move);
 
-    void DeselectPiece();
+    void DeselectCurrentPiece();
 
     bool CanMoveTo(const sf::Vector2i& move);
 
     void PromotePawnAt(const sf::Vector2i& position, PieceType type);
 
-    void UpdateBoardWithMove(sf::Vector2i move);
+    void UpdateBoardAfterMove(std::tuple<sf::Vector2i, sf::Vector2i>);
 
-    void UpdateKingPosition(const sf::Vector2i& move) {
+    void CheckUpdateKingPosition(const sf::Vector2i& move) {
         if (selectedPiece->GetType() == PieceType::King) {
             if (selectedPiece->GetColor() == Color::White) {
                 whiteKingPosition = move;
@@ -72,25 +63,22 @@ public:
         return selectedPiece;
     }
 
-    std::vector<sf::Vector2i> GetAvailableMovesForSelectedPiece();
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> GetAvailableMovesForSelectedPiece() {
+        return availableMovesForSelectedPiece;
+    }
+
+    void SetAvailableMovesForSelectedPiece();
 
 private:
     Board chessBoard;
     sf::RenderWindow window;
     Color playerTurn = Color::White;
-    std::shared_ptr<Piece> lastMovedPiece;
     std::shared_ptr<Piece> selectedPiece = nullptr;
-    std::vector<std::shared_ptr<Piece>> capturedPieces;
-    sf::Vector2i lastMovedPiecePreviousPosition;
     sf::Vector2i selectedPosition = {-1, -1};
     sf::Vector2i blackKingPosition = {4, 0};
     sf::Vector2i whiteKingPosition = {4, 7};
-
-    bool IsKnightThreat(const sf::Vector2i& kingPos, Color kingColor) const;
-    bool IsPawnThreat(const sf::Vector2i& kingPos, Color kingColor) const;
-    bool IsRookThreat(const sf::Vector2i& kingPos, Color kingColor) const;
-    bool IsBishopThreat(const sf::Vector2i& kingPos, Color kingColor) const;
-    bool IsQueenThreat(const sf::Vector2i& kingPos, Color kingColor) const;
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> availableMovesForSelectedPiece = {};
+    static sf::RenderWindow GetGameWindow();
 };
 
 #endif //CHESS_GAME_H

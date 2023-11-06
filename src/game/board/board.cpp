@@ -15,28 +15,38 @@ sf::Color Board::DetermineSquareColor(sf::Vector2i position, sf::Vector2i select
     if ((position.x == selectedPosition.x) && (position.y == selectedPosition.y)) {
         return {177, 167, 252};
     }
-    return ((position.x + position.y) % 2 == 0) ? sf::Color(232, 237, 249) : sf::Color(183, 192, 216);
+    return ((position.x + position.y) % 2 == 0) ? sf::Color(183, 192, 216) : sf::Color(232, 237, 249);
 }
 
-void Board::DrawAvailableMoves(sf::RenderWindow &window, const std::vector<sf::Vector2i> &availableMoves, const std::shared_ptr<Piece>& selectedPiece) const {
+void Board::DrawAvailableMoves(sf::RenderWindow &window, const std::vector<std::tuple<sf::Vector2i, sf::Vector2i>>& availableMoves, const std::shared_ptr<Piece>& selectedPiece) const {
+    const int squareSize = 100;
+    sf::RectangleShape attackSquare(sf::Vector2f(squareSize, squareSize)); // Square shape for attacks
+    sf::RectangleShape moveSquare(sf::Vector2f(squareSize, squareSize)); // Square shape for moves
+    sf::CircleShape moveCircle((float)squareSize / 2 - 25);
+
     for (const auto& move : availableMoves) {
-        auto piece = GetPieceAt({move.x, move.y});
+        auto regMove = std::get<0>(move);
+        auto attackMove = std::get<1>(move);
 
-        sf::CircleShape circle((float)100 / 2 - 25);
+        auto attackedPiece = GetPieceAt({attackMove.x, attackMove.y});
 
-        if (piece && piece->GetColor() != selectedPiece->GetColor()) {
-            circle.setFillColor(sf::Color(237, 92, 114));
-        } else {
-            circle.setFillColor(sf::Color(123, 97, 255));
+        sf::Vector2f attackPosition((float)(attackMove.x * squareSize), (float)(attackMove.y * squareSize));
+        sf::Vector2f movePosition((float)(regMove.x * squareSize), (float)(regMove.y * squareSize));
+        attackSquare.setPosition(attackPosition);
+        moveCircle.setPosition(movePosition.x + 25, movePosition.y + 25);
+
+        if (attackedPiece && attackedPiece->GetColor() != selectedPiece->GetColor()) {
+            attackSquare.setFillColor(sf::Color(237, 190, 199));
+            window.draw(attackSquare);
         }
-
-        circle.setPosition((float)(move.x * 100) + 25, (float)(move.y * 100) + 25);
-        window.draw(circle);
+        moveCircle.setFillColor(sf::Color(123, 97, 255));
+        window.draw(moveCircle);
     }
 }
 
 
-void Board::Draw(sf::RenderWindow& window, const sf::Vector2i& selectedPosition, const std::vector<sf::Vector2i>& availableMoves) {
+
+void Board::DrawBoard(sf::RenderWindow& window, const sf::Vector2i& selectedPosition, const std::vector<std::tuple<sf::Vector2i, sf::Vector2i>>& availableMoves) {
     const int squareSize = 100;
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
 
@@ -62,7 +72,6 @@ void Board::Draw(sf::RenderWindow& window, const sf::Vector2i& selectedPosition,
     }
 
 }
-
 
 void Board::Populate() {
     for (int row = 0; row < 8; ++row) {

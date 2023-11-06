@@ -20,22 +20,28 @@ class Board {
 private:
     using Row = std::array<std::optional<std::shared_ptr<Piece>>, 8>;
     std::array<Row, 8> board;
-
+    std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> movesDone = {};
 public:
-
     void UpdateBoardPosition(const sf::Vector2i& position, const std::shared_ptr<Piece>& piece) {
-        std::cout << "Updating board position to: " << position.x << ", " << position.y << std::endl;
         board[position.x][position.y] = piece;
     }
-    void Draw(sf::RenderWindow& window, const sf::Vector2i& selectedPosition, const std::vector<sf::Vector2i>& availableMoves);
+    void AddMoveDone(const sf::Vector2i& moveFrom, const sf::Vector2i& moveTo) {
+        movesDone.emplace_back(moveFrom, moveTo);
+    }
+    void DrawBoard(sf::RenderWindow& window, const sf::Vector2i& selectedPosition, const std::vector<std::tuple<sf::Vector2i, sf::Vector2i>>& availableMoves);
     void Populate();
     [[nodiscard]] std::shared_ptr<Piece> GetPieceAt(sf::Vector2i position) const;
+
     [[nodiscard]] static bool IsWithinBounds(sf::Vector2i position) {
         return position.x >= 0 && position.x < 8 && position.y >= 0 && position.y < 8;
     }
 
+    [[nodiscard]] std::vector<std::tuple<sf::Vector2i, sf::Vector2i>> GetMovesDone() const {
+        return movesDone;
+    }
+
 private:
-    void DrawAvailableMoves(sf::RenderWindow &window, const std::vector<sf::Vector2i> &availableMoves, const std::shared_ptr<Piece>& selectedPiece) const;
+    void DrawAvailableMoves(sf::RenderWindow &window, const std::vector<std::tuple<sf::Vector2i, sf::Vector2i>>& availableMoves, const std::shared_ptr<Piece>& selectedPiece) const;
     [[nodiscard]] static sf::Color DetermineSquareColor(sf::Vector2i position, sf::Vector2i selectedPosition);
 };
 
