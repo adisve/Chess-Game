@@ -211,7 +211,7 @@ void Game::SetAvailableMovesForSelectedPiece() {
                 }
             }
         }
-
+        availableMovesForSelectedPiece = legalMoves;
     } else {
         availableMovesForSelectedPiece = {};
     }
