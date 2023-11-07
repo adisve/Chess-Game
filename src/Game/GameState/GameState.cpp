@@ -18,7 +18,11 @@ void GameState::ChangePlayerTurn() {
 }
 
 void GameState::UpdateBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::optional<std::shared_ptr<Piece>>& selectedPiece) {
-    this->board->DrawBoard(window, availableMoves, selectedPiece.value());
+    if (selectedPiece.has_value()) {
+        this->board->DrawBoard(window, availableMoves, selectedPiece.value());
+    } else {
+        this->board->DrawBoard(window, availableMoves, nullptr);
+    }
 }
 
 bool GameState::IsKingInCheck() const {
@@ -86,7 +90,7 @@ std::shared_ptr<Board> GameState::GetBoard() {
     return this->board;
 }
 
-void GameState::PromotePawnAt(const sf::Vector2i& position, PieceType type) {
+void GameState::PromotePawnAt(const Position& position, PieceType type) {
     auto pawn = this->board->GetPieceAt(position);
     switch (type) {
         case PieceType::Queen:
@@ -135,17 +139,10 @@ bool GameState::IsValidMove(const sf::Vector2i &move, const Player& currentPlaye
 }
 
 void GameState::MoveSelectedPieceTo(const Position& moveTo, const Position& moveFrom) {
-
     auto movingPiece = this->board->GetPieceAt(moveFrom);
-
     this->board->SetPieceAt(moveTo, this->board->GetPieceAt(moveFrom));
     movingPiece->SetPosition(moveTo);
     this->board->SetPieceAt(moveFrom, nullptr);
-
-    if (movingPiece->GetType() == PieceType::Pawn) {
-        auto pawn = std::dynamic_pointer_cast<Pawn>(movingPiece);
-        pawn->SetHasMoved();
-    }
 }
 
 void GameState::CapturePieceAt(const Position& attackedPosition) {
@@ -163,7 +160,11 @@ void GameState::UpdateKingPosition(const Position& moveTo) {
 }
 
 std::optional<std::shared_ptr<Piece>> GameState::GetCurrentPlayerSelectedPiece() {
-    return this->CurrentPlayer()->GetSelectedPiece(*this->GetBoard());
+    auto selectedPiece = this->CurrentPlayer()->GetSelectedPiece(*this->GetBoard());
+    if (selectedPiece.has_value()) {
+        return selectedPiece.value();
+    }
+    return nullptr;
 }
 
 std::vector<Move> GameState::GetAvailableMovesCurrentPlayer() {
@@ -187,4 +188,18 @@ void GameState::InitializeBoard() {
 
 PlayerColor GameState::GetPlayerTurn() {
     return this->playerTurn;
+}
+
+void GameState::CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move) {
+    auto pawn = dynamic_cast<Pawn*>(piece.get());
+    if (pawn->CanPromote(move)) {
+        // Implement menu for selecting piece to promote to
+    }
+}
+
+void GameState::CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece) {
+    auto pawn = dynamic_cast<Pawn*>(piece.get());
+    if (pawn->GetHasMoved()) {
+        pawn->SetHasMoved();
+    }
 }

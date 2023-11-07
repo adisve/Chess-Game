@@ -26,7 +26,3 @@ std::vector<Move> Queen::AvailableMoves(const Board& board, const std::optional<
     }
     return moves;
 }
-
-const sf::Texture &Queen::GetTexture() const {
-    return texture;
-}

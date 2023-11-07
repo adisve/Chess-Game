@@ -9,9 +9,11 @@
 
 class King : public Piece {
 public:
+
     King(sf::Vector2i position, PlayerColor color, PieceType type);
+
     std::vector<Move> AvailableMoves(const Board& board, const std::optional<Move>& lastMove) const override;
-    const sf::Texture& GetTexture() const override;
+
 };
 
 #endif //CHESSGAME_KING_H

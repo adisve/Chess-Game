@@ -36,23 +36,28 @@ void Board::DrawAvailableMoves(sf::RenderWindow &window, const std::vector<Move>
     }
 }
 
-sf::Color Board::DetermineSquareColor(Position position) {
+sf::Color Board::DetermineSquareColor(Position position, Position selectedPosition) {
+    if (position == selectedPosition) {
+        return {177, 167, 252};
+    }
     return ((position.x + position.y) % 2 == 0) ? sf::Color(183, 192, 216) : sf::Color(232, 237, 249);
 }
 
 void Board::DrawBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::shared_ptr<Piece>& selectedPiece) const {
     const int squareSize = 100;
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
+    const Position selectedPosition = selectedPiece == nullptr ? Position{-1, -1} : selectedPiece->GetPosition();
 
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
             square.setPosition((float)row * squareSize, (float)col * squareSize);
-            square.setFillColor(DetermineSquareColor(Position {row, col}));
+            square.setFillColor(DetermineSquareColor(Position {row, col}, selectedPosition));
             window.draw(square);
         }
     }
 
-    if (!availableMoves.empty()) {
+    if (!availableMoves.empty() || selectedPiece != nullptr) {
+        std::cout << "Drawing available moves" << std::endl;
         // After drawing the board, draw the available move indicators.
         // This function must be called here to ensure indicators are drawn under the pieces.
         DrawAvailableMoves(window, availableMoves, selectedPiece);

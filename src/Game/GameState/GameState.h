@@ -7,6 +7,7 @@
 
 #include "../Board/Board.h"
 #include "../Player/Player.h"
+#include "../Piece/Pawn/Pawn.h"
 
 using Position = sf::Vector2i;
 
@@ -43,6 +44,10 @@ public:
     void UpdateKingPosition(const Position& position);
 
     void UpdateBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::optional<std::shared_ptr<Piece>>& selectedPiece);
+
+    void CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move);
+
+    void CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece);
 
     std::vector<Move> GetAvailableMovesCurrentPlayer();
 

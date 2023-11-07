@@ -25,7 +25,3 @@ std::vector<Move> Rook::AvailableMoves(const Board& board, const std::optional<M
     }
     return moves;
 }
-
-const sf::Texture& Rook::GetTexture() const {
-    return texture;
-}

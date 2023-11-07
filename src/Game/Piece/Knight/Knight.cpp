@@ -39,7 +39,3 @@ std::vector<Move> Knight::AvailableMoves(const Board& board, const std::optional
 
     return moves;
 }
-
-const sf::Texture &Knight::GetTexture() const {
-    return texture;
-}

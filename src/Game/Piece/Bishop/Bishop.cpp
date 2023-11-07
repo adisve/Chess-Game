@@ -25,7 +25,3 @@ std::vector<Move> Bishop::AvailableMoves(const Board& board, const std::optional
     }
     return moves;
 }
-
-const sf::Texture &Bishop::GetTexture() const {
-    return texture;
-}

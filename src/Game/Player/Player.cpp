@@ -33,7 +33,6 @@ PlayerColor Player::GetColor() {
 }
 
 std::optional<std::shared_ptr<Piece>> Player::GetSelectedPiece(const Board& board) const {
-    //std::cout << "Trying to get piece at (" << this->selectedPiecePosition.x << ", " << this->selectedPiecePosition.y << ")" << std::endl;
     return board.GetPieceAt(this->selectedPiecePosition);
 }
 

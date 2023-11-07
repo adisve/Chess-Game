@@ -32,7 +32,7 @@ public:
     bool HasSelectedPiece() const;
 
 private:
-    Position selectedPiecePosition;
+    Position selectedPiecePosition = { -1, -1 };
     std::vector<Move> availableMoves;
     PlayerColor color;
 };

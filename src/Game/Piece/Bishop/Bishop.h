@@ -9,9 +9,10 @@
 
 class Bishop : public Piece {
 public:
+
     Bishop(sf::Vector2i position, PlayerColor color, PieceType type);
+
     std::vector<Move> AvailableMoves(const Board& board, const std::optional<Move>& lastMove) const override;
-    const sf::Texture& GetTexture() const override;
 };
 
 #endif //CHESSGAME_BISHOP_H

@@ -122,6 +122,19 @@ bool Pawn::CanEnPassant(Position enPassantPosition, int direction, const Move& l
     return true;
 }
 
+void Pawn::SetHasMoved() {
+    hasMoved = true;
+}
 
+bool Pawn::GetHasMoved() const {
+    return hasMoved;
+}
 
-
+bool Pawn::CanPromote(const Move& move) const  {
+    switch (this->GetColor()) {
+        case PlayerColor::White:
+            return this->GetType() == PieceType::Pawn && move.moveToDirection.y == 0;
+        case PlayerColor::Black:
+            return this->GetType() == PieceType::Pawn && move.moveToDirection.y == 7;
+    }
+}

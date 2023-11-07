@@ -26,7 +26,7 @@ public:
 
     void Populate();
 
-    [[nodiscard]] std::shared_ptr<Piece> GetPieceAt(sf::Vector2i position) const;
+    [[nodiscard]] std::shared_ptr<Piece> GetPieceAt(Position position) const;
 
     [[nodiscard]] static bool IsWithinBounds(Position position) {
         return position.x >= 0 && position.x < 8 && position.y >= 0 && position.y < 8;
@@ -39,7 +39,7 @@ public:
     void SetPieceAt(Position position, const std::shared_ptr<Piece>& piece);
 
 private:
-    [[nodiscard]] static sf::Color DetermineSquareColor(sf::Vector2i position);
+    [[nodiscard]] static sf::Color DetermineSquareColor(Position position, Position selectedPosition);
 };
 
 #endif //CHESSGAME_BOARD_H

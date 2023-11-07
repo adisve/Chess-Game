@@ -38,7 +38,3 @@ std::vector<Move> King::AvailableMoves(const Board& board, const std::optional<M
     }
     return moves;
 }
-
-const sf::Texture &King::GetTexture() const {
-    return texture;
-}
