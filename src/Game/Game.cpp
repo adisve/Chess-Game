@@ -9,6 +9,8 @@
 #include "Piece/Bishop/Bishop.h"
 #include "Piece/Pawn/Pawn.h"
 
+const int SQUARE_SIZE = 100;
+
 void Game::Run() {
     while (window.isOpen()) {
         window.clear();
@@ -21,59 +23,68 @@ void Game::Run() {
 }
 
 void Game::HandleEvent(sf::Event& event) {
-    if (event.type == sf::Event::Closed) {
-        window.close();
-    } else if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-        HandleLeftMouseClick({event.mouseButton.x / 100, event.mouseButton.y / 100});
+    switch (event.type) {
+        case sf::Event::Closed:
+            window.close();
+            break;
+        case sf::Event::MouseButtonPressed:
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                HandleLeftMouseClick({event.mouseButton.x / SQUARE_SIZE, event.mouseButton.y / SQUARE_SIZE});
+            }
+            break;
+        default:
+            break;
     }
 }
 
 void Game::HandleLeftMouseClick(Position position) {
-    if (HasCurrentPlayerSelectedPiece()) {
-        auto selectedPiece = GetCurrentPlayerSelectedPiece().value();
+    auto currentPlayer = this->gameState.CurrentPlayer();
+    auto playerTurn = this->gameState.GetPlayerTurn();
+    auto clickedPiece = this->gameState.GetBoard()->GetPieceAt(position);
+
+    if (currentPlayer->HasSelectedPiece()) {
+        auto selectedPiece = currentPlayer->GetSelectedPiece(*this->gameState.GetBoard()).value();
+
         if (selectedPiece->GetPosition() == position) {
-            this->CurrentPlayer()->DeselectPiece();
-        } else if (this->gameState.GetBoard()->GetPieceAt(position) != nullptr && this->gameState.GetBoard()->GetPieceAt(position)->GetColor() == this->CurrentPlayer()->GetColor()) {
-            this->CurrentPlayer()->SelectPiece(position, *this->gameState.GetBoard(), this->moveManager.GetLastMove());
-        } else {
-            auto availableMoves = GetAvailableMovesCurrentPlayer();
-            auto move = std::find_if(availableMoves.begin(), availableMoves.end(), [position](Move move) {
-                return move.moveToDirection == position || move.attackingDirection == position;
-            });
-            if (move != availableMoves.end()) {
-                this->moveManager.ExecuteMove(*move);
-                this->gameState.MoveSelectedPieceTo(move->moveToDirection, move->moveFromDirection);
-                this->gameState.ChangePlayerTurn();
-                this->CurrentPlayer()->DeselectPiece();
-            }
+            currentPlayer->DeselectPiece();
         }
-    } else {
-        auto piece = this->gameState.GetBoard()->GetPieceAt(position);
-        if (piece != nullptr && piece->GetColor() == this->CurrentPlayer()->GetColor()) {
-            this->CurrentPlayer()->SelectPiece(position, *this->gameState.GetBoard(), this->moveManager.GetLastMove());
+        else if (clickedPiece && clickedPiece->GetColor() == playerTurn) {
+            currentPlayer->SelectPiece(position, *this->gameState.GetBoard(), this->moveManager.GetLastMove());
         }
+        else {
+            this->ExecuteMove(position);
+        }
+    }
+    else if (clickedPiece && clickedPiece->GetColor() == playerTurn) {
+        currentPlayer->SelectPiece(position, *this->gameState.GetBoard(), this->moveManager.GetLastMove());
+    }
+}
+
+
+void Game::ExecuteMove(Position position) {
+    auto currentPlayer = this->gameState.CurrentPlayer();
+    auto availableMoves = currentPlayer->GetAvailableMoves();
+
+    auto moveIt = std::find_if(availableMoves.begin(), availableMoves.end(),
+                               [position](const Move& move) {
+                                   return move.moveToDirection == position || move.attackingDirection == position;
+                               });
+
+    if (moveIt != availableMoves.end()) {
+        this->moveManager.ExecuteMove(*moveIt);
+        this->gameState.CapturePieceAt(moveIt->attackingDirection);
+        this->gameState.MoveSelectedPieceTo(moveIt->moveToDirection, moveIt->moveFromDirection);
+        this->gameState.UpdateKingPosition(moveIt->moveToDirection);
+        this->gameState.ChangePlayerTurn();
+
+        std::cout << "Player turn is now: " << this->gameState.GetPlayerTurn() << std::endl;
+
+        currentPlayer->DeselectPiece();
     }
 }
 
 void Game::RenderBoard() {
-    this->gameState.UpdateBoard(this->window);
-    this->gameState.RenderMovesAndAttacks(this->window, GetAvailableMovesCurrentPlayer(), GetCurrentPlayerSelectedPiece());
-}
-
-std::optional<std::shared_ptr<Piece>> Game::GetCurrentPlayerSelectedPiece() {
-    return this->CurrentPlayer()->GetSelectedPiece(*this->gameState.GetBoard());
-}
-
-std::vector<Move> Game::GetAvailableMovesCurrentPlayer() {
-    return this->CurrentPlayer()->GetAvailableMoves();
-}
-
-std::shared_ptr<Player> Game::CurrentPlayer() {
-    return this->gameState.GetPlayerTurn() == PlayerColor::White ? whitePlayer : blackPlayer;
-}
-
-bool Game::HasCurrentPlayerSelectedPiece() {
-    return this->CurrentPlayer()->HasSelectedPiece();
+    this->gameState.UpdateBoard(this->window, this->gameState.GetAvailableMovesCurrentPlayer(), this->gameState.GetCurrentPlayerSelectedPiece());
 }
 
 void Game::Render() {

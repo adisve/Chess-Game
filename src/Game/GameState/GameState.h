@@ -13,11 +13,12 @@ using Position = sf::Vector2i;
 class GameState {
 public:
 
-    GameState() {
-        this->board = std::make_shared<Board>();
-    };
+    GameState():
+            whitePlayer(std::make_shared<Player>(PlayerColor::White)),
+            blackPlayer(std::make_shared<Player>(PlayerColor::White)),
+            board(std::make_shared<Board>()){};
 
-    [[nodiscard]] Position GetKingPosition(PlayerColor color) const;
+    [[nodiscard]] Position GetKingPosition() const;
 
     void InitializeBoard();
 
@@ -37,15 +38,17 @@ public:
 
     void MoveSelectedPieceTo(const Position& moveTo, const Position& moveFrom);
 
-    void UpdateKingPosition(const Position& position, const std::shared_ptr<Piece>& piece, Position& kingPosition);
+    void CapturePieceAt(const Position& attackedPosition);
 
-    void UpdateBoard(sf::RenderWindow& window);
+    void UpdateKingPosition(const Position& position);
 
-    void RenderMovesAndAttacks(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::optional<std::shared_ptr<Piece>>& selectedPiece);
+    void UpdateBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::optional<std::shared_ptr<Piece>>& selectedPiece);
 
-    static bool CanMoveTo(const sf::Vector2i &move, const std::vector<Move>& availableMoves);
+    std::vector<Move> GetAvailableMovesCurrentPlayer();
 
-    std::shared_ptr<Piece> GetPieceOnBoard(Position position);
+    std::shared_ptr<Player> CurrentPlayer();
+
+    std::optional<std::shared_ptr<Piece>> GetCurrentPlayerSelectedPiece();
 
 private:
     std::shared_ptr<Board> board;
@@ -53,6 +56,10 @@ private:
     Position blackKingPosition = {4, 0};
 
     Position whiteKingPosition = {4, 7};
+
+    std::shared_ptr<Player> blackPlayer;
+
+    std::shared_ptr<Player> whitePlayer;
 
     PlayerColor playerTurn = PlayerColor::White;
 };

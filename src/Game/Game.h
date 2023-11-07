@@ -16,20 +16,11 @@
 
 class Game {
 public:
-    Game() :
-    whitePlayer(std::make_shared<Player>(PlayerColor::White)),
-    blackPlayer(std::make_shared<Player>(PlayerColor::White)),
-    window(sf::VideoMode(800, 800), "Chess Game", sf::Style::Default) {
+    Game() : window(sf::VideoMode(800, 800), "Chess Game", sf::Style::Default) {
         gameState.InitializeBoard();
     }
 
     void Run();
-
-    void HandleEvent(sf::Event& event);
-
-    void HandleLeftMouseClick(sf::Vector2i position);
-
-    std::shared_ptr<Player> CurrentPlayer();
 
 private:
 
@@ -39,15 +30,20 @@ private:
 
     sf::RenderWindow window;
 
-    std::shared_ptr<Player> blackPlayer;
+    void HandleEvent(sf::Event& event);
 
-    std::shared_ptr<Player> whitePlayer;
+    void HandleLeftMouseClick(sf::Vector2i position);
+
+    void MovePiece(Position position);
+
+    void CapturePiece(Position position);
+
+    void ExecuteMove(Position position);
 
     void RenderBoard();
+
     void Render();
-    std::vector<Move> GetAvailableMovesCurrentPlayer();
-    std::optional<std::shared_ptr<Piece>> GetCurrentPlayerSelectedPiece();
-    bool HasCurrentPlayerSelectedPiece();
+
 };
 
 #endif //CHESS_GAME_H

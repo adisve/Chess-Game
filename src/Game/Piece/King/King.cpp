@@ -17,7 +17,7 @@ King::King(sf::Vector2i position, PlayerColor color, PieceType type) : Piece(pos
 std::vector<Move> King::AvailableMoves(const Board& board, const std::optional<Move>& lastMove) const {
     std::vector<Move> moves;
 
-    std::vector<sf::Vector2i> potentialMoves = {
+    std::vector<Position> potentialMoves = {
             { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 },
             { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }
     };
@@ -30,9 +30,9 @@ std::vector<Move> King::AvailableMoves(const Board& board, const std::optional<M
             std::shared_ptr<Piece> pieceAtDestination = board.GetPieceAt({newRow, newCol});
 
             if (!pieceAtDestination || pieceAtDestination->GetColor() != this->GetColor()) {
-                sf::Vector2i attackPosition = {newRow, newCol};
-                sf::Vector2i movePosition = {newRow, newCol};
-                moves.emplace_back(this->GetPosition(), attackPosition, movePosition);
+                Position attackPosition = {newRow, newCol};
+                Position movePosition = {newRow, newCol};
+                moves.emplace_back(movePosition, attackPosition, this->GetPosition());
             }
         }
     }

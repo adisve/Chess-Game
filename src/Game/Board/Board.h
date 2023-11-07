@@ -22,7 +22,7 @@ private:
     std::array<Row, 8> board;
 public:
 
-    void DrawBoard(sf::RenderWindow& window) const;
+    void DrawBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::shared_ptr<Piece>& selectedPiece) const;
 
     void Populate();
 
