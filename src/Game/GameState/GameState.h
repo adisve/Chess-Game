@@ -25,9 +25,7 @@ public:
 
     [[nodiscard]] bool IsKingInCheck() const;
 
-    bool IsCheckmate(const Player& player);
-
-    void PromotePawnAt(const Position& position, PieceType type);
+    void PromotePawn(const Position& position, PieceType type);
 
     void ChangePlayerTurn();
 
@@ -54,6 +52,8 @@ public:
     std::shared_ptr<Player> CurrentPlayer();
 
     std::optional<std::shared_ptr<Piece>> GetCurrentPlayerSelectedPiece();
+
+    bool IsCheckmate();
 
 private:
     std::shared_ptr<Board> board;

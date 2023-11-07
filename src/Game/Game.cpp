@@ -17,6 +17,13 @@ void Game::Run() {
         sf::Event event{};
         while (window.pollEvent(event)) {
             HandleEvent(event);
+            if (this->gameState.IsKingInCheck()) {
+                std::cout << "Check" << std::endl;
+                if (this->gameState.IsCheckmate()) {
+                    std::cout << "Checkmate" << std::endl;
+                    window.close();
+                }
+            }
         }
         Render();
     }
@@ -81,12 +88,6 @@ void Game::ExecuteMove(Position position) {
 
         this->gameState.CapturePieceAt(moveIt->attackingDirection);
         this->gameState.MoveSelectedPieceTo(moveIt->moveToDirection, moveIt->moveFromDirection);
-
-        if (this->gameState.IsKingInCheck()) {
-            if (this->gameState.IsCheckmate(*currentPlayer)) {
-                // End the game or handle the checkmate scenario
-            }
-        }
 
         this->gameState.UpdateKingPosition(moveIt->moveToDirection);
 

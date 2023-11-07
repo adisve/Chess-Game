@@ -82,15 +82,33 @@ bool GameState::IsKingInCheck() const {
     return false;
 }
 
-bool GameState::IsCheckmate(const Player &player) {
-    return false;
+bool GameState::IsCheckmate() {
+    if (!this->IsKingInCheck()) {
+        return false;
+    }
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            sf::Vector2i pos(x, y);
+            auto piece = board->GetPieceAt(pos);
+            if (piece && piece->GetColor() == playerTurn) {
+                auto moves = this->GetAvailableMovesCurrentPlayer();
+                for (const auto& move : moves) {
+                    if (this->IsValidMove(move.moveToDirection, *this->CurrentPlayer())) {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 std::shared_ptr<Board> GameState::GetBoard() {
     return this->board;
 }
 
-void GameState::PromotePawnAt(const Position& position, PieceType type) {
+void GameState::PromotePawn(const Position& position, PieceType type) {
     auto pawn = this->board->GetPieceAt(position);
     switch (type) {
         case PieceType::Queen:
@@ -116,27 +134,25 @@ bool GameState::IsValidMove(const sf::Vector2i &move, const Player& currentPlaye
 
     if (tempMovedPiecePointer) {
         const auto tempMovedPiece = tempMovedPiecePointer.value();
-        sf::Vector2i originalPosition = tempMovedPiece->GetPosition();
+        Position originalPosition = tempMovedPiece->GetPosition();
+
         auto pieceAtDestination = board->GetPieceAt(move);
 
-        board->SetPieceAt(originalPosition, nullptr);
-        board->SetPieceAt(move, tempMovedPiece);
-        tempMovedPiece->SetPosition(move);
+        this->MoveSelectedPieceTo(move, originalPosition);
 
-        UpdateKingPosition(move);
-
+        this->UpdateKingPosition(move);
         bool movePutsKingInCheck = IsKingInCheck();
 
+        this->MoveSelectedPieceTo(originalPosition, move);
         board->SetPieceAt(move, pieceAtDestination);
-        board->SetPieceAt(originalPosition, tempMovedPiece);
-        tempMovedPiece->SetPosition(originalPosition);
 
-        UpdateKingPosition(originalPosition);
+        this->UpdateKingPosition(originalPosition);
 
         return !movePutsKingInCheck;
     }
     return false;
 }
+
 
 void GameState::MoveSelectedPieceTo(const Position& moveTo, const Position& moveFrom) {
     auto movingPiece = this->board->GetPieceAt(moveFrom);
@@ -193,13 +209,13 @@ PlayerColor GameState::GetPlayerTurn() {
 void GameState::CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move) {
     auto pawn = dynamic_cast<Pawn*>(piece.get());
     if (pawn->CanPromote(move)) {
-        // Implement menu for selecting piece to promote to
+        this->PromotePawn(move.moveToDirection, PieceType::Queen);
     }
 }
 
 void GameState::CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece) {
     auto pawn = dynamic_cast<Pawn*>(piece.get());
-    if (pawn->GetHasMoved()) {
+    if (!pawn->GetHasMoved()) {
         pawn->SetHasMoved();
     }
 }
