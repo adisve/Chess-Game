@@ -57,7 +57,6 @@ void Board::DrawBoard(sf::RenderWindow& window, const std::vector<Move>& availab
     }
 
     if (!availableMoves.empty() || selectedPiece != nullptr) {
-        std::cout << "Drawing available moves" << std::endl;
         // After drawing the board, draw the available move indicators.
         // This function must be called here to ensure indicators are drawn under the pieces.
         DrawAvailableMoves(window, availableMoves, selectedPiece);

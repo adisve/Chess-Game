@@ -6,8 +6,6 @@
 #include <iostream>
 
 void MoveManager::ExecuteMove(const Move &move) {
-    std::cout << "Executing move: (" << move.moveToDirection.x << ", " << move.moveToDirection.y << ")" << std::endl;
-    std::cout << "Attacking at (" << move.attackingDirection.x << ", " << move.attackingDirection.y << ")" << std::endl;
     this->moveHistory.push_back(move);
 }
 
