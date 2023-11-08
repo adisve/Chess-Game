@@ -13,7 +13,9 @@ This is a simple chess game made in C++ using the SFML graphics library. It is a
 - Add a settings screen
 - Add a save/load feature
 - Add a tutorial
+
 - [~] Implement undo for moves (the logic is already available)
+- [~] Implement clicking on pieces (the logic is already available)
 
 
 <br>
