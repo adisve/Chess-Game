@@ -4,8 +4,6 @@
 #include "Piece.h"
 #include "../Board/Board.h"
 
-const int SQUARE_SIZE = 100;
-
 std::vector<Move> Piece::FindMovesInDirectionForPiece(int rowIncrement, int colIncrement, const Board& board) const {
     std::vector<Move> moves;
 
@@ -29,9 +27,30 @@ std::vector<Move> Piece::FindMovesInDirectionForPiece(int rowIncrement, int colI
     return moves;
 }
 
-void Piece::SetPosition(const Position& newPosition) {
+void Piece::SetIsDragged(bool isDragged) {
+    this->currentlyDragged = isDragged;
+}
+
+bool Piece::IsDragged() {
+    return this->currentlyDragged;
+}
+
+void Piece::SetLogicalPosition(const Position& newPosition) {
     this->position = newPosition;
-    this->sprite.setPosition((float)newPosition.x * SQUARE_SIZE + 50, (float)newPosition.y * SQUARE_SIZE + 50);
+}
+
+void Piece::Render(sf::RenderWindow& window) const {
+    window.draw(sprite);
+}
+
+void Piece::UpdateVisualPositionFromLogical() {
+    this->sprite.setPosition((float)position.x * SQUARE_SIZE + 50, (float)position.y * SQUARE_SIZE + 50);
+}
+
+void Piece::SetVisualPosition(const sf::Vector2f& newPosition) {
+    std::cout << "Setting visual position to: " << newPosition.x << ", " << newPosition.y << std::endl;
+    sprite.setOrigin((float)texture.getSize().x / 2, (float)texture.getSize().y / 2);
+    this->sprite.setPosition(newPosition);
 }
 
 void Piece::LoadTexture(const std::string& path) {
@@ -53,8 +72,4 @@ Position Piece::GetPosition() const {
 
 PlayerColor Piece::GetColor() const {
     return color;
-}
-
-const sf::Texture& Piece::GetTexture() const {
-    return texture;
 }

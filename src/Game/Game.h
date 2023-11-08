@@ -34,9 +34,13 @@ private:
 
     void HandleLeftMouseClick(sf::Vector2i position);
 
-    void MovePiece(Position position);
+    void HandleDrag(sf::Vector2i position);
 
-    void CapturePiece(Position position);
+    void StartDragging(sf::Vector2i position);
+
+    void StopDragging(sf::Vector2i position);
+
+    void UpdateDragging(sf::Vector2i position);
 
     void ExecuteMove(Position position);
 

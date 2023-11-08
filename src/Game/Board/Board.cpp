@@ -65,8 +65,8 @@ void Board::DrawBoard(sf::RenderWindow& window, const std::vector<Move>& availab
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
             auto piece = this->GetPieceAt({row, col});
-            if (piece) {
-                window.draw(piece->sprite);
+            if (piece && !piece->IsDragged()) {
+                piece->Render(window);
             }
         }
     }

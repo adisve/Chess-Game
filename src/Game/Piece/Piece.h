@@ -11,7 +11,7 @@
 #define CHESSGAME_PIECE_H
 
 class Board;
-
+const int SQUARE_SIZE = 100;
 using Position = sf::Vector2i;
 
 enum class PieceType {
@@ -41,17 +41,28 @@ public:
 
     virtual std::vector<Move> AvailableMoves(const Board& board, const std::optional<Move>& lastMove) const = 0;
 
-    const sf::Texture& GetTexture() const;
-
     [[nodiscard]] Position GetPosition() const;
 
     PlayerColor GetColor() const;
 
-    void SetPosition(const Position& newPosition);
+    void SetLogicalPosition(const Position& newPosition);
 
     PieceType GetType() const;
 
+    void SetVisualPosition(const sf::Vector2f& newPosition);
+
+    void Render(sf::RenderWindow& window) const;
+
+    // Called when the logical position of the piece changes
+    void UpdateVisualPositionFromLogical();
+
+    void SetIsDragged(bool isDragged);
+
+    bool IsDragged();
+
 protected:
+
+    bool currentlyDragged = false;
 
     void LoadTexture(const std::string& path);
 

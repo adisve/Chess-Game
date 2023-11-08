@@ -9,8 +9,6 @@
 #include "Piece/Bishop/Bishop.h"
 #include "Piece/Pawn/Pawn.h"
 
-const int SQUARE_SIZE = 100;
-
 void Game::Run() {
     while (window.isOpen()) {
         window.clear();
@@ -29,7 +27,17 @@ void Game::HandleEvent(sf::Event& event) {
             break;
         case sf::Event::MouseButtonPressed:
             if (event.mouseButton.button == sf::Mouse::Left) {
-                HandleLeftMouseClick({event.mouseButton.x / SQUARE_SIZE, event.mouseButton.y / SQUARE_SIZE});
+                this->StartDragging({event.mouseButton.x / SQUARE_SIZE, event.mouseButton.y / SQUARE_SIZE});
+            }
+            break;
+        case sf::Event::MouseButtonReleased:
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                this->StopDragging({event.mouseButton.x / SQUARE_SIZE, event.mouseButton.y / SQUARE_SIZE});
+            }
+            break;
+        case sf::Event::MouseMoved:
+            if (this->gameState.isDragging) {
+                this->UpdateDragging({event.mouseMove.x, event.mouseMove.y});
             }
             break;
         default:
@@ -76,5 +84,51 @@ void Game::RenderBoard() {
 void Game::Render() {
     this->window.clear();
     RenderBoard();
+
+    auto draggedPiece = this->gameState.CurrentPlayer()->GetSelectedPiece(*this->gameState.GetBoard());
+    if (this->gameState.isDragging && draggedPiece.has_value()) {
+        draggedPiece.value()->Render(this->window);
+    }
+
     this->window.display();
+}
+
+void Game::StartDragging(sf::Vector2i position) {
+    auto currentPlayer = this->gameState.CurrentPlayer();
+    auto piece = this->gameState.GetBoard()->GetPieceAt(position);
+
+    if (piece && piece->GetColor() == this->gameState.GetPlayerTurn()) {
+        this->gameState.isDragging = true;
+        currentPlayer->SelectPiece(position, *this->gameState.GetBoard(), this->moveManager.GetLastMove());
+
+        auto selectedPiece = currentPlayer->GetSelectedPiece(*this->gameState.GetBoard());
+
+        if (selectedPiece.has_value()) {
+            selectedPiece.value()->SetIsDragged(true);
+        }
+    }
+}
+
+void Game::StopDragging(Position position) {
+    auto currentPlayer = this->gameState.CurrentPlayer();
+    auto playerSelectedPiece = currentPlayer->GetSelectedPiece(*this->gameState.GetBoard())->get();
+
+    if (this->gameState.isDragging && playerSelectedPiece && currentPlayer->CanMovePieceTo(position)) {
+        Position boardPosition = {position.x, position.y};
+
+        playerSelectedPiece->SetLogicalPosition(position);
+        playerSelectedPiece->UpdateVisualPositionFromLogical();
+
+        this->ExecuteMove(boardPosition);
+    } else if (playerSelectedPiece) {
+        currentPlayer->DeselectPiece();
+        playerSelectedPiece->UpdateVisualPositionFromLogical();
+        playerSelectedPiece->SetIsDragged(false);
+    }
+    this->gameState.isDragging = false;
+}
+
+void Game::UpdateDragging(sf::Vector2i position) {
+    auto newPosition = sf::Vector2f(position);
+    this->gameState.CurrentPlayer()->GetSelectedPiece(*this->gameState.GetBoard())->get()->SetVisualPosition(newPosition);
 }

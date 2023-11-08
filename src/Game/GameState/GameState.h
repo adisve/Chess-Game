@@ -68,6 +68,9 @@ public:
 
     void HandleMoveSounds(bool didCapture, bool didMove, bool didCastle, bool didPromote, const Move& lastMove);
 
+    bool isClick = false;
+
+    bool isDragging = false;
 
 private:
     std::shared_ptr<Board> board;

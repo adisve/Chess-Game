@@ -158,7 +158,7 @@ bool GameState::IsLegalMove(const sf::Vector2i &move, const std::shared_ptr<Piec
 void GameState::MoveSelectedPieceTo(const Position& moveTo, const Position& moveFrom) {
     auto movingPiece = this->board->GetPieceAt(moveFrom);
     this->board->SetPieceAt(moveTo, this->board->GetPieceAt(moveFrom));
-    movingPiece->SetPosition(moveTo);
+    movingPiece->SetLogicalPosition(moveTo);
     this->board->SetPieceAt(moveFrom, nullptr);
 }
 
@@ -175,7 +175,7 @@ void GameState::ExecuteMove(const Move& move) {
     bool didCastle = this->PerformCastling(move, selectedPiece);
     bool didPromote = this->PerformPromotion(move, selectedPiece);
 
-    this->CheckForPieceFirstMove(selectedPiece);
+    GameState::CheckForPieceFirstMove(selectedPiece);
     currentPlayer->DeselectPiece();
 
     this->HandleMoveSounds(didCapture, didMove, didCastle, didPromote, move);
@@ -211,6 +211,7 @@ bool GameState::PerformCastling(const Move& move, const std::shared_ptr<Piece>& 
 
             MoveSelectedPieceTo(rookTo, rookFrom);
             auto rook = std::static_pointer_cast<Rook>(board->GetPieceAt(rookTo));
+            rook->UpdateVisualPositionFromLogical();
             if (rook) {
                 rook->SetHasMoved();
             }
