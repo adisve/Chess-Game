@@ -86,6 +86,7 @@ bool GameState::IsKingInCheck() const {
             }
         }
     }
+
     return false;
 }
 
@@ -175,6 +176,8 @@ void GameState::ExecuteMove(const Move& move) {
     bool didCastle = this->PerformCastling(move, selectedPiece);
     bool didPromote = this->PerformPromotion(move, selectedPiece);
 
+    this->UpdateKingPosition(move.moveToDirection);
+
     GameState::CheckForPieceFirstMove(selectedPiece);
     currentPlayer->DeselectPiece();
 
@@ -191,7 +194,6 @@ bool GameState::PerformCapture(const Move& move) {
 
 bool GameState::PerformMove(const Move& move) {
     this->MoveSelectedPieceTo(move.moveToDirection, move.moveFromDirection);
-    this->UpdateKingPosition(move.moveToDirection);
     return true;
 }
 
@@ -233,7 +235,7 @@ void GameState::HandleMoveSounds(bool didCapture, bool didMove, bool didCastle, 
     this->ChangePlayerTurn();
     bool isOpponentInCheck = this->IsKingInCheck();
     bool isOpponentInCheckMate = this->IsCheckmate(lastMove);
-    this->ChangePlayerTurn(); // Change the turn back to the current player
+    this->ChangePlayerTurn();
 
     if (didCastle) {
         this->audioManager.PlayCastleSound();

@@ -48,7 +48,6 @@ void Piece::UpdateVisualPositionFromLogical() {
 }
 
 void Piece::SetVisualPosition(const sf::Vector2f& newPosition) {
-    std::cout << "Setting visual position to: " << newPosition.x << ", " << newPosition.y << std::endl;
     sprite.setOrigin((float)texture.getSize().x / 2, (float)texture.getSize().y / 2);
     this->sprite.setPosition(newPosition);
 }
