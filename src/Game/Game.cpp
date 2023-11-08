@@ -69,12 +69,18 @@ void Game::HandleLeftMouseClick(Position position) {
 }
 
 
-void Game::ExecuteMove(Position position) {
-    if (const auto& move = this->gameState.CurrentPlayer()->CanMovePieceTo(position)) {
-        this->moveManager.ExecuteMove(*move);
-        this->gameState.ExecuteMove(*move);
-        this->gameState.ChangePlayerTurn();
+bool Game::ExecuteMove(Position position) {
+    auto currentPlayer = this->gameState.CurrentPlayer();
+    auto selectedPiece = currentPlayer->GetSelectedPiece(*this->gameState.GetBoard());
+    if (selectedPiece && this->gameState.IsLegalMove(position, selectedPiece.value())) {
+        if (const auto& move = currentPlayer->CanMovePieceTo(position)) {
+            this->moveManager.ExecuteMove(*move);
+            this->gameState.ExecuteMove(*move);
+            this->gameState.ChangePlayerTurn();
+            return true;
+        }
     }
+    return false;
 }
 
 void Game::RenderBoard() {
@@ -115,11 +121,12 @@ void Game::StopDragging(Position position) {
 
     if (this->gameState.isDragging && playerSelectedPiece && currentPlayer->CanMovePieceTo(position)) {
         Position boardPosition = {position.x, position.y};
-
-        playerSelectedPiece->SetLogicalPosition(position);
+        if (this->ExecuteMove(boardPosition)) {
+            playerSelectedPiece->SetLogicalPosition(position);
+        }
         playerSelectedPiece->UpdateVisualPositionFromLogical();
+        playerSelectedPiece->SetIsDragged(false);
 
-        this->ExecuteMove(boardPosition);
     } else if (playerSelectedPiece) {
         currentPlayer->DeselectPiece();
         playerSelectedPiece->UpdateVisualPositionFromLogical();

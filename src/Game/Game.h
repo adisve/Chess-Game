@@ -42,7 +42,7 @@ private:
 
     void UpdateDragging(sf::Vector2i position);
 
-    void ExecuteMove(Position position);
+    bool ExecuteMove(Position position);
 
     void RenderBoard();
 
