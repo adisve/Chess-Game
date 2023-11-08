@@ -33,7 +33,7 @@ public:
 
     PlayerColor GetPlayerTurn();
 
-    bool IsValidMove(const sf::Vector2i &move, const Player& currentPlayer);
+    bool IsLegalMove(const sf::Vector2i &move, const std::shared_ptr<Piece>& piece);
 
     void MoveSelectedPieceTo(const Position& moveTo, const Position& moveFrom);
 
@@ -45,7 +45,7 @@ public:
 
     void CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move);
 
-    void CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece);
+    static void CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece);
 
     std::vector<Move> GetAvailableMovesCurrentPlayer();
 
@@ -53,7 +53,7 @@ public:
 
     std::optional<std::shared_ptr<Piece>> GetCurrentPlayerSelectedPiece();
 
-    bool IsCheckmate();
+    bool IsCheckmate(const Move& lastMove);
 
 private:
     std::shared_ptr<Board> board;
