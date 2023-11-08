@@ -2,35 +2,35 @@ cmake_minimum_required(VERSION 3.26)
 project(chessgame)
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(chessgame src/main.cpp
-        src/Game/Board/Board.cpp
-        src/Game/Board/Board.h
-        src/Game/Piece/Piece.h
-        src/Game/Piece/PlayerColor.h
-        src/Game/Piece/Pawn/Pawn.cpp
-        src/Game/Piece/Pawn/Pawn.h
-        src/Game/Piece/Knight/Knight.cpp
-        src/Game/Piece/Knight/Knight.h
-        src/Game/Piece/Rook/Rook.cpp
-        src/Game/Piece/Rook/Rook.h
-        src/Game/Piece/King/King.cpp
-        src/Game/Piece/King/King.h
-        src/Game/Piece/Queen/Queen.cpp
-        src/Game/Piece/Queen/Queen.h
-        src/Game/Piece/Bishop/Bishop.cpp
-        src/Game/Piece/Bishop/Bishop.h
-        src/Game/Game.cpp
-        src/Game/Game.h
-        src/Game/Piece/Piece.cpp
-        src/Game/GameState/GameState.cpp
-        src/Game/GameState/GameState.h
-        src/Game/Player/Player.cpp
-        src/Game/Player/Player.h
-        src/Game/Player/Move.h
-        src/Game/MoveManager/MoveManager.cpp
-        src/Game/MoveManager/MoveManager.h
-        src/Game/AudioManager/AudioManager.cpp
-        src/Game/AudioManager/AudioManager.h
+add_executable(chessgame main.cpp
+        Game/Board/Board.cpp
+        Game/Board/Board.h
+        Game/Piece/Piece.h
+        Game/Piece/PlayerColor.h
+        Game/Piece/Pawn/Pawn.cpp
+        Game/Piece/Pawn/Pawn.h
+        Game/Piece/Knight/Knight.cpp
+        Game/Piece/Knight/Knight.h
+        Game/Piece/Rook/Rook.cpp
+        Game/Piece/Rook/Rook.h
+        Game/Piece/King/King.cpp
+        Game/Piece/King/King.h
+        Game/Piece/Queen/Queen.cpp
+        Game/Piece/Queen/Queen.h
+        Game/Piece/Bishop/Bishop.cpp
+        Game/Piece/Bishop/Bishop.h
+        Game/Game.cpp
+        Game/Game.h
+        Game/Piece/Piece.cpp
+        Game/GameState/GameState.cpp
+        Game/GameState/GameState.h
+        Game/Player/Player.cpp
+        Game/Player/Player.h
+        Game/Player/Move.h
+        Game/MoveManager/MoveManager.cpp
+        Game/MoveManager/MoveManager.h
+        Game/AudioManager/AudioManager.cpp
+        Game/AudioManager/AudioManager.h
 )
 
 include_directories(/usr/local/include)
