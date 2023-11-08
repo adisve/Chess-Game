@@ -8,9 +8,9 @@
 
 Rook::Rook(sf::Vector2i position, PlayerColor color, PieceType type) : Piece(position, color, type) {
     if (color == PlayerColor::Black) {
-        LoadTexture("assets/sprites/Rook-black.png");
+        LoadTexture("Assets/Sprites/Rook-black.png");
     } else {
-        LoadTexture("assets/sprites/Rook-white.png");
+        LoadTexture("Assets/Sprites/Rook-white.png");
     }
 }
 
@@ -24,4 +24,12 @@ std::vector<Move> Rook::AvailableMoves(const Board& board, const std::optional<M
         moves.insert(moves.end(), directionMoves.begin(), directionMoves.end());
     }
     return moves;
+}
+
+bool Rook::HasMoved() const {
+    return hasMoved;
+}
+
+void Rook::SetHasMoved() {
+    hasMoved = true;
 }

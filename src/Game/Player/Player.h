@@ -29,7 +29,9 @@ public:
 
     Position GetSelectedPiecePosition();
 
-    bool HasSelectedPiece() const;
+    [[nodiscard]] bool HasSelectedPiece() const;
+
+    std::optional<Move>  CanMovePieceTo(const Position& position) const;
 
 private:
     Position selectedPiecePosition = { -1, -1 };

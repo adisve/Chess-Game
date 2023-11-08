@@ -8,9 +8,9 @@
 
 Queen::Queen(sf::Vector2i position, PlayerColor color, PieceType type) : Piece(position, color, type) {
     if (color == PlayerColor::Black) {
-        LoadTexture("assets/sprites/Queen-black.png");
+        LoadTexture("Assets/Sprites/Queen-black.png");
     } else {
-        LoadTexture("assets/sprites/Queen-white.png");
+        LoadTexture("Assets/Sprites/Queen-white.png");
     }
 }
 

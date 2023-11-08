@@ -39,3 +39,16 @@ std::optional<std::shared_ptr<Piece>> Player::GetSelectedPiece(const Board& boar
 bool Player::HasSelectedPiece() const {
     return this->selectedPiecePosition.x != -1 && this->selectedPiecePosition.y != -1;
 }
+
+std::optional<Move> Player::CanMovePieceTo(const Position& position) const {
+    auto moveIt = std::find_if(availableMoves.begin(), availableMoves.end(),
+                               [position](const Move& move) {
+                                   return move.moveToDirection == position || move.attackingDirection == position;
+                               });
+
+    if (moveIt != availableMoves.end()) {
+        return *moveIt;
+    } else {
+        return std::nullopt;
+    }
+}

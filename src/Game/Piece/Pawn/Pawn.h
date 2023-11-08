@@ -33,7 +33,7 @@ public:
 
     void SetHasMoved();
 
-    bool GetHasMoved() const;
+    bool HasMoved() const;
 
 private:
     bool hasMoved = false;

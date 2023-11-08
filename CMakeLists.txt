@@ -27,8 +27,10 @@ add_executable(chessgame src/main.cpp
         src/Game/Player/Player.cpp
         src/Game/Player/Player.h
         src/Game/Player/Move.h
-        src/Game/MovementManager/MoveManager.cpp
-        src/Game/MovementManager/MoveManager.h
+        src/Game/MoveManager/MoveManager.cpp
+        src/Game/MoveManager/MoveManager.h
+        src/Game/AudioManager/AudioManager.cpp
+        src/Game/AudioManager/AudioManager.h
 )
 
 include_directories(/usr/local/include)

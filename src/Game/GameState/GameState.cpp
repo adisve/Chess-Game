@@ -8,6 +8,13 @@
 #include "../Piece/Bishop/Bishop.h"
 #include "../Piece/Knight/Knight.h"
 #include "../Piece/Pawn/Pawn.h"
+#include "../Piece/King/King.h"
+
+const std::vector<PieceType> moveRestrictions = {
+        PieceType::King,
+        PieceType::Rook,
+        PieceType::Pawn
+};
 
 Position GameState::GetKingPosition() const {
     return playerTurn == PlayerColor::White ? whiteKingPosition : blackKingPosition;
@@ -101,6 +108,7 @@ bool GameState::IsCheckmate(const Move& lastMove) {
         }
     }
 
+    this->audioManager.PlayCheckmateSound();
     return true;
 }
 
@@ -131,17 +139,16 @@ void GameState::PromotePawn(const Position& position, PieceType type) {
 
 bool GameState::IsLegalMove(const sf::Vector2i &move, const std::shared_ptr<Piece>& piece) {
     Position originalPosition = piece->GetPosition();
-
     auto pieceAtDestination = board->GetPieceAt(move);
 
     this->MoveSelectedPieceTo(move, originalPosition);
-
+    this->board->SetPieceAt(originalPosition, nullptr);
     this->UpdateKingPosition(move);
-    bool movePutsKingInCheck = IsKingInCheck();
+
+    bool movePutsKingInCheck = this->IsKingInCheck();
 
     this->MoveSelectedPieceTo(originalPosition, move);
-    board->SetPieceAt(move, pieceAtDestination);
-
+    this->board->SetPieceAt(move, pieceAtDestination);
     this->UpdateKingPosition(originalPosition);
 
     return !movePutsKingInCheck;
@@ -158,6 +165,90 @@ void GameState::MoveSelectedPieceTo(const Position& moveTo, const Position& move
 void GameState::CapturePieceAt(const Position& attackedPosition) {
     this->board->SetPieceAt(attackedPosition, nullptr);
 }
+
+void GameState::ExecuteMove(const Move& move) {
+    auto currentPlayer = this->CurrentPlayer();
+    auto selectedPiece = currentPlayer->GetSelectedPiece(*this->board).value();
+
+    bool didCapture = this->PerformCapture(move);
+    bool didMove = this->PerformMove(move);
+    bool didCastle = this->PerformCastling(move, selectedPiece);
+    bool didPromote = this->PerformPromotion(move, selectedPiece);
+
+    this->CheckForPieceFirstMove(selectedPiece);
+    currentPlayer->DeselectPiece();
+
+    this->HandleMoveSounds(didCapture, didMove, didCastle, didPromote, move);
+}
+
+bool GameState::PerformCapture(const Move& move) {
+    if (this->board->GetPieceAt(move.attackingDirection) != nullptr) {
+        this->CapturePieceAt(move.attackingDirection);
+        return true;
+    }
+    return false;
+}
+
+bool GameState::PerformMove(const Move& move) {
+    this->MoveSelectedPieceTo(move.moveToDirection, move.moveFromDirection);
+    this->UpdateKingPosition(move.moveToDirection);
+    return true;
+}
+
+bool GameState::PerformCastling(const Move& move, const std::shared_ptr<Piece>& selectedPiece) {
+    if (selectedPiece->GetType() == PieceType::King) {
+        if (std::abs(move.moveToDirection.x - move.moveFromDirection.x) == 2) {
+            Position rookFrom;
+            Position rookTo;
+
+            if (move.moveToDirection.x > move.moveFromDirection.x) {
+                rookFrom = {7, move.moveToDirection.y};
+                rookTo = {move.moveToDirection.x - 1, move.moveToDirection.y};
+            } else {
+                rookFrom = {0, move.moveToDirection.y};
+                rookTo = {move.moveToDirection.x + 1, move.moveToDirection.y};
+            }
+
+            MoveSelectedPieceTo(rookTo, rookFrom);
+            auto rook = std::static_pointer_cast<Rook>(board->GetPieceAt(rookTo));
+            if (rook) {
+                rook->SetHasMoved();
+            }
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool GameState::PerformPromotion(const Move& move, const std::shared_ptr<Piece>& selectedPiece) {
+    if (selectedPiece->GetType() == PieceType::Pawn) {
+        return CheckForPawnPromotion(selectedPiece, move);
+    }
+    return false;
+}
+
+void GameState::HandleMoveSounds(bool didCapture, bool didMove, bool didCastle, bool didPromote, const Move& lastMove) {
+    this->ChangePlayerTurn();
+    bool isOpponentInCheck = this->IsKingInCheck();
+    bool isOpponentInCheckMate = this->IsCheckmate(lastMove);
+    this->ChangePlayerTurn(); // Change the turn back to the current player
+
+    if (didCastle) {
+        this->audioManager.PlayCastleSound();
+    } else if (didPromote) {
+        this->audioManager.PlayPromotionSound();
+    } else if (didCapture) {
+        this->audioManager.PlayCaptureSound();
+    } else if (isOpponentInCheckMate) {
+        this->audioManager.PlayCheckmateSound();
+    } else if (isOpponentInCheck) {
+        this->audioManager.PlayCheckSound();
+    } else if (didMove) {
+        this->audioManager.PlayMoveSound();
+    }
+}
+
 
 void GameState::UpdateKingPosition(const Position& moveTo) {
     if (this->board->GetPieceAt(moveTo)->GetType() == PieceType::King) {
@@ -201,19 +292,24 @@ PlayerColor GameState::GetPlayerTurn() {
     return this->playerTurn;
 }
 
-void GameState::CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move) {
+bool GameState::CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move) {
     auto pawn = dynamic_cast<Pawn*>(piece.get());
     if (pawn->CanPromote(move)) {
-        std::cout << "Promoting pawn" << std::endl;
         this->PromotePawn(move.moveToDirection, PieceType::Queen);
-    } else {
-        std::cout << "Cannot promote pawn" << std::endl;
+        return true;
     }
+    return false;
 }
 
-void GameState::CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece) {
-    auto pawn = dynamic_cast<Pawn*>(piece.get());
-    if (!pawn->GetHasMoved()) {
-        pawn->SetHasMoved();
+void GameState::CheckForPieceFirstMove(const std::shared_ptr<Piece>& piece) {
+    if (std::find(moveRestrictions.begin(), moveRestrictions.end(), piece->GetType()) != moveRestrictions.end()) {
+        if (auto king = dynamic_cast<King*>(piece.get())) {
+            king->SetHasMoved();
+        } else if (auto rook = dynamic_cast<Rook*>(piece.get())) {
+            rook->SetHasMoved();
+        } else if (auto pawn = dynamic_cast<Pawn*>(piece.get())) {
+            pawn->SetHasMoved();
+        }
+        return;
     }
 }

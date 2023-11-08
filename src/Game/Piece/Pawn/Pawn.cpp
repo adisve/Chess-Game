@@ -8,9 +8,9 @@
 
 Pawn::Pawn(sf::Vector2i position, PlayerColor color, PieceType type) : Piece(position, color, type) {
     if (color == PlayerColor::Black) {
-        LoadTexture("assets/sprites/Pawn-black.png");
+        LoadTexture("Assets/Sprites/Pawn-black.png");
     } else {
-        LoadTexture("assets/sprites/Pawn-white.png");
+        LoadTexture("Assets/Sprites/Pawn-white.png");
     }
 }
 
@@ -126,7 +126,7 @@ void Pawn::SetHasMoved() {
     hasMoved = true;
 }
 
-bool Pawn::GetHasMoved() const {
+bool Pawn::HasMoved() const {
     return hasMoved;
 }
 

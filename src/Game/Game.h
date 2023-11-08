@@ -6,7 +6,7 @@
 #include "Piece/Piece.h"
 #include "Board/Board.h"
 #include "GameState/GameState.h"
-#include "MovementManager/MoveManager.h"
+#include "MoveManager/MoveManager.h"
 #include <memory>
 #include <utility>
 #pragma once

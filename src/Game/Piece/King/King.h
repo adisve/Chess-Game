@@ -14,6 +14,12 @@ public:
 
     std::vector<Move> AvailableMoves(const Board& board, const std::optional<Move>& lastMove) const override;
 
+    bool HasMoved() const;
+
+    void SetHasMoved();
+
+private:
+    bool hasMoved = false;
 };
 
 #endif //CHESSGAME_KING_H

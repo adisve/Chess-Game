@@ -8,6 +8,7 @@
 #include "../Board/Board.h"
 #include "../Player/Player.h"
 #include "../Piece/Pawn/Pawn.h"
+#include "../AudioManager/AudioManager.h"
 
 using Position = sf::Vector2i;
 
@@ -24,6 +25,8 @@ public:
     void InitializeBoard();
 
     [[nodiscard]] bool IsKingInCheck() const;
+
+    void ExecuteMove(const Move& move);
 
     void PromotePawn(const Position& position, PieceType type);
 
@@ -43,9 +46,9 @@ public:
 
     void UpdateBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::optional<std::shared_ptr<Piece>>& selectedPiece);
 
-    void CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move);
+    bool CheckForPawnPromotion(const std::shared_ptr<Piece>& piece, const Move& move);
 
-    static void CheckForPawnFirstMove(const std::shared_ptr<Piece>& piece);
+    static void CheckForPieceFirstMove(const std::shared_ptr<Piece>& piece);
 
     std::vector<Move> GetAvailableMovesCurrentPlayer();
 
@@ -55,8 +58,21 @@ public:
 
     bool IsCheckmate(const Move& lastMove);
 
+    bool PerformCapture(const Move& move);
+
+    bool PerformMove(const Move& move);
+
+    bool PerformCastling(const Move& move, const std::shared_ptr<Piece>& selectedPiece);
+
+    bool PerformPromotion(const Move& move, const std::shared_ptr<Piece>& selectedPiece);
+
+    void HandleMoveSounds(bool didCapture, bool didMove, bool didCastle, bool didPromote, const Move& lastMove);
+
+
 private:
     std::shared_ptr<Board> board;
+
+    AudioManager audioManager;
 
     Position blackKingPosition = {4, 0};
 

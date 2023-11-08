@@ -8,9 +8,9 @@
 
 Knight::Knight(sf::Vector2i position, PlayerColor color, PieceType type) : Piece(position, color, type) {
     if (color == PlayerColor::Black) {
-        LoadTexture("assets/sprites/Knight-black.png");
+        LoadTexture("Assets/Sprites/Knight-black.png");
     } else {
-        LoadTexture("assets/sprites/Knight-white.png");
+        LoadTexture("Assets/Sprites/Knight-white.png");
     }
 }
 

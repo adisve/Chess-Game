@@ -17,12 +17,6 @@ void Game::Run() {
         sf::Event event{};
         while (window.pollEvent(event)) {
             HandleEvent(event);
-            if (this->gameState.IsKingInCheck()) {
-                if (this->gameState.IsCheckmate(*this->moveManager.GetLastMove())) {
-                    std::cout << "Checkmate" << std::endl;
-                    window.close();
-                }
-            }
         }
         Render();
     }
@@ -68,31 +62,10 @@ void Game::HandleLeftMouseClick(Position position) {
 
 
 void Game::ExecuteMove(Position position) {
-    auto currentPlayer = this->gameState.CurrentPlayer();
-    auto availableMoves = currentPlayer->GetAvailableMoves();
-    auto selectedPiece = currentPlayer->GetSelectedPiece(*this->gameState.GetBoard()).value();
-
-    auto moveIt = std::find_if(availableMoves.begin(), availableMoves.end(),
-                               [position](const Move& move) {
-                                   return move.moveToDirection == position || move.attackingDirection == position;
-                               });
-
-    if (moveIt != availableMoves.end()) {
-        this->moveManager.ExecuteMove(*moveIt);
-
-        this->gameState.CapturePieceAt(moveIt->attackingDirection);
-        this->gameState.MoveSelectedPieceTo(moveIt->moveToDirection, moveIt->moveFromDirection);
-
-        if (selectedPiece->GetType() == PieceType::Pawn) {
-            GameState::CheckForPawnFirstMove(selectedPiece);
-            this->gameState.CheckForPawnPromotion(selectedPiece, *moveIt);
-        }
-
-        this->gameState.UpdateKingPosition(moveIt->moveToDirection);
-
+    if (const auto& move = this->gameState.CurrentPlayer()->CanMovePieceTo(position)) {
+        this->moveManager.ExecuteMove(*move);
+        this->gameState.ExecuteMove(*move);
         this->gameState.ChangePlayerTurn();
-
-        currentPlayer->DeselectPiece();
     }
 }
 

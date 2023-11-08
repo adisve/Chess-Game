@@ -8,9 +8,9 @@
 
 Bishop::Bishop(sf::Vector2i position, PlayerColor color, PieceType type) : Piece(position, color, type) {
     if (color == PlayerColor::Black) {
-        LoadTexture("assets/sprites/Bishop-black.png");
+        LoadTexture("Assets/Sprites/Bishop-black.png");
     } else {
-        LoadTexture("assets/sprites/Bishop-white.png");
+        LoadTexture("Assets/Sprites/Bishop-white.png");
     }
 }
 
