@@ -40,7 +40,7 @@ sf::Color Board::DetermineSquareColor(Position position, Position selectedPositi
     if (position == selectedPosition) {
         return {177, 167, 252};
     }
-    return ((position.x + position.y) % 2 == 0) ? sf::Color(183, 192, 216) : sf::Color(232, 237, 249);
+    return ((position.x + position.y) % 2 != 0) ? sf::Color(183, 192, 216) : sf::Color(232, 237, 249);
 }
 
 void Board::DrawBoard(sf::RenderWindow& window, const std::vector<Move>& availableMoves, const std::shared_ptr<Piece>& selectedPiece) const {
